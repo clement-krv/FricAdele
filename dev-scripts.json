@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "dev:frontend": "npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm run build",
+    "start:backend": "cd backend && npm start",
+    "install:all": "npm install && cd backend && npm install",
+    "setup": "npm run install:all && cp .env.example .env && cd backend && cp .env.example .env"
+  }
+}
