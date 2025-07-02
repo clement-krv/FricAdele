@@ -1,4 +1,4 @@
-# Budget Manager - Application de Gestion de Budget Personnel
+# FricAdele - Application de Gestion de Budget Personnel
 
 Une application web complète et responsive pour la gestion de budget personnel, développée avec React (frontend) et Node.js/Express (backend), utilisant MongoDB pour la persistance des données et Redis pour le cache des statistiques.
 
@@ -88,8 +88,8 @@ cp .env.example .env
 Configurer les variables d'environnement dans `.env` :
 ```env
 # Database
-MONGODB_URI=mongodb://localhost:27017/budget_manager
-JWT_SECRET=budget_manager_super_secret_jwt_key_2025_development
+MONGODB_URI=mongodb://localhost:27017/fricadele_dev
+JWT_SECRET=fricadele_development_secret_key_2025
 JWT_EXPIRE=7d
 
 # Redis
@@ -105,7 +105,7 @@ SMTP_PORT=587
 SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
 FROM_EMAIL=noreply@budgetmanager.com
-FROM_NAME=Budget Manager
+FROM_NAME=FricAdele
 
 # Security
 BCRYPT_ROUNDS=12
@@ -128,7 +128,7 @@ cp .env.example .env
 Configurer les variables d'environnement dans `.env` :
 ```env
 VITE_API_URL=http://localhost:3001/api
-VITE_APP_NAME=Budget Manager
+VITE_APP_NAME=FricAdele
 VITE_APP_VERSION=1.0.0
 ```
 
@@ -184,30 +184,17 @@ Si vous voyez des erreurs de connexion, vérifiez que :
 - Redis est démarré (`redis-server`)
 - Les ports 3001 et 5173 ne sont pas utilisés par d'autres applications
 
-### Mode Production
-
-1. **Build du Frontend** :
-```bash
-npm run build
-```
-
-2. **Démarrer le Backend** :
-```bash
-cd backend
-NODE_ENV=production PORT=3001 npm start
-```
-
 ## 🛠️ Scripts Disponibles
 
 ### Frontend (racine du projet)
 - `npm run dev` - Lancement du serveur de développement Vite
-- `npm run build` - Build de production
-- `npm run preview` - Aperçu du build de production
+- `npm run build` - Build du projet
+- `npm run preview` - Aperçu du build
 - `npm run dev:all` - Lance backend + frontend simultanément
 
 ### Backend
 - `npm run dev` - Serveur de développement avec nodemon
-- `npm start` - Serveur de production
+- `npm start` - Démarrer le serveur
 - `npm run dev:backend` - Alias pour npm run dev
 
 ## 🔧 Dépannage
@@ -220,7 +207,7 @@ NODE_ENV=production PORT=3001 npm start
 
 **Erreur MongoDB** :
 - Vérifiez que MongoDB est démarré : `net start MongoDB`
-- Vérifiez la connexion : `MONGODB_URI=mongodb://localhost:27017/budget_manager`
+- Vérifiez la connexion : `MONGODB_URI=mongodb://localhost:27017/fricadele_dev`
 
 **Erreur Redis** :
 - Démarrez Redis : `redis-server`
@@ -316,8 +303,8 @@ VITE_API_URL=http://localhost:3001/api
 
 Éditez le fichier `backend/.env` :
 ```env
-MONGODB_URI=mongodb://localhost:27017/budget_manager
-JWT_SECRET=budget_manager_super_secret_jwt_key_2025_development
+MONGODB_URI=mongodb://localhost:27017/fricadele_dev
+JWT_SECRET=fricadele_development_secret_key_2025
 REDIS_URL=redis://localhost:6379
 PORT=3001
 ```
@@ -340,4 +327,4 @@ npm run dev:all
 
 C'est tout ! Votre application de gestion de budget est prête ! 🎉
 
-**Budget Manager** - Gérez votre budget personnel en toute simplicité ! 💰📊
+**FricAdele** - Gérez votre budget personnel en toute simplicité ! 💰📊

@@ -194,7 +194,7 @@ const forgotPassword = async (req, res, next) => {
     try {
       await sendEmail({
         email: user.email,
-        subject: 'Réinitialisation de mot de passe - Budget Manager',
+        subject: 'Réinitialisation de mot de passe - FricAdele',
         message,
       });
 

@@ -41,7 +41,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center space-x-2">
             <Wallet className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">Budget Manager</span>
+            <span className="text-xl font-bold text-gray-900">FricAdele</span>
           </Link>
 
           {/* Desktop Navigation */}

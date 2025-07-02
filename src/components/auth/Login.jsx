@@ -56,8 +56,8 @@ const Login = () => {
           </h1>
           <p className="text-gray-600">
             {isLogin 
-              ? 'Connectez-vous à votre compte Budget Manager'
-              : 'Créez votre compte Budget Manager'
+              ? 'Connectez-vous à votre compte FricAdele'
+              : 'Créez votre compte FricAdele'
             }
           </p>
         </div>
