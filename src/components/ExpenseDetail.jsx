@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { expenseAPI } from '../services/api';
 import { formatCurrency } from '../utils/helpers';
+import toast from 'react-hot-toast';
 import {
   ArrowLeft,
   Edit,
@@ -34,6 +35,7 @@ const ExpenseDetail = () => {
       setExpense(response.expense);
     } catch (err) {
       setError('Erreur lors du chargement de la dépense');
+      toast.error('Erreur lors du chargement de la dépense');
       console.error('Error fetching expense:', err);
     } finally {
       setLoading(false);
@@ -48,12 +50,14 @@ const ExpenseDetail = () => {
     try {
       setDeleting(true);
       await expenseAPI.deleteExpense(id);
+      toast.success('Dépense supprimée avec succès !');
       navigate('/dashboard', { 
         replace: true,
         state: { message: 'Dépense supprimée avec succès' }
       });
     } catch (err) {
       setError('Erreur lors de la suppression de la dépense');
+      toast.error('Erreur lors de la suppression de la dépense');
       console.error('Error deleting expense:', err);
     } finally {
       setDeleting(false);

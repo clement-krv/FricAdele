@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { expenseAPI, categoryAPI, tagAPI } from '../services/api';
 import { formatDateForInput } from '../utils/helpers';
 import { Save, ArrowLeft, Plus, X } from 'lucide-react';
+import { validateSchema, validateField, expenseSchema } from '../utils/validation';
+import toast from 'react-hot-toast';
 
 const AddExpense = () => {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const AddExpense = () => {
   const [newTag, setNewTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     fetchCategories();
@@ -50,6 +53,14 @@ const AddExpense = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Validation en temps réel
+    const fieldError = validateField(expenseSchema, name, value, formData);
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: fieldError
+    }));
+    
     if (error) setError('');
   };
 
@@ -91,18 +102,18 @@ const AddExpense = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.amount || !formData.description) {
-      setError('Veuillez remplir tous les champs obligatoires');
-      return;
-    }
-
-    if (isNaN(parseFloat(formData.amount)) || parseFloat(formData.amount) <= 0) {
-      setError('Le montant doit être un nombre positif');
+    // Validation avec Zod
+    const validation = validateSchema(expenseSchema, formData);
+    
+    if (!validation.success) {
+      setFieldErrors(validation.errors);
+      toast.error('Veuillez corriger les erreurs du formulaire');
       return;
     }
 
     setLoading(true);
     setError('');
+    setFieldErrors({});
 
     try {
       const expenseData = {
@@ -114,9 +125,12 @@ const AddExpense = () => {
       };
 
       await expenseAPI.createExpense(expenseData);
+      toast.success('Dépense créée avec succès !');
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Erreur lors de la création de la dépense');
+      const errorMessage = err.response?.data?.message || 'Erreur lors de la création de la dépense';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -162,13 +176,18 @@ const AddExpense = () => {
                   step="0.01"
                   min="0"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    fieldErrors.amount ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="0.00"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                   <span className="text-gray-500 text-sm">€</span>
                 </div>
               </div>
+              {fieldErrors.amount && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.amount}</p>
+              )}
             </div>
 
             {/* Description */}
@@ -183,9 +202,14 @@ const AddExpense = () => {
                 value={formData.description}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  fieldErrors.description ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="Description de la dépense"
               />
+              {fieldErrors.description && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.description}</p>
+              )}
             </div>
 
             {/* Date */}
@@ -199,8 +223,13 @@ const AddExpense = () => {
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  fieldErrors.date ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
               />
+              {fieldErrors.date && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.date}</p>
+              )}
             </div>
 
             {/* Category */}

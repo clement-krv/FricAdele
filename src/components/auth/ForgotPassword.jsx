@@ -2,30 +2,64 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Mail, ArrowLeft } from 'lucide-react';
+import { validateSchema, validateField, forgotPasswordSchema } from '../../utils/validation';
+import toast from 'react-hot-toast';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const { forgotPassword } = useAuth();
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    
+    // Validation en temps réel
+    const fieldError = validateField(forgotPasswordSchema, 'email', value, { email: value });
+    setFieldErrors(prev => ({
+      ...prev,
+      email: fieldError
+    }));
+    
+    if (error) setError('');
+    if (message) setMessage('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setMessage('');
+    setFieldErrors({});
+
+    // Validation avec Zod
+    const validation = validateSchema(forgotPasswordSchema, { email });
+    
+    if (!validation.success) {
+      setFieldErrors(validation.errors);
+      setLoading(false);
+      toast.error('Veuillez corriger les erreurs du formulaire');
+      return;
+    }
 
     try {
       const result = await forgotPassword(email);
       if (result.success) {
-        setMessage('Un email de réinitialisation a été envoyé à votre adresse email.');
+        const successMessage = 'Un email de réinitialisation a été envoyé à votre adresse email.';
+        setMessage(successMessage);
+        toast.success(successMessage);
       } else {
         setError(result.error);
+        toast.error(result.error);
       }
     } catch (err) {
-      setError('Une erreur inattendue s\'est produite');
+      const errorMessage = 'Une erreur inattendue s\'est produite';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -66,12 +100,17 @@ const ForgotPassword = () => {
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  fieldErrors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="votre@email.com"
               />
             </div>
+            {fieldErrors.email && (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+            )}
           </div>
 
           <button

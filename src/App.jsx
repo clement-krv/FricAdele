@@ -1,9 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/layout/Navbar';
 import Login from './components/auth/Login';
 import ForgotPassword from './components/auth/ForgotPassword';
+import ResetPassword from './components/auth/ResetPassword';
 import Dashboard from './components/Dashboard';
 import AddExpense from './components/AddExpense';
 import Statistics from './components/Statistics';
@@ -28,6 +30,23 @@ function App() {
     <AuthProvider>
       <Router>
         <AppContent />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+            success: {
+              duration: 3000,
+              theme: {
+                primary: 'green',
+                secondary: 'black',
+              },
+            },
+          }}
+        />
       </Router>
     </AuthProvider>
   );
@@ -58,6 +77,10 @@ const AppContent = () => {
       <Route 
         path="/forgot-password" 
         element={!isAuthenticated ? <ForgotPassword /> : <Navigate to="/dashboard" replace />} 
+      />
+      <Route 
+        path="/reset-password/:token" 
+        element={!isAuthenticated ? <ResetPassword /> : <Navigate to="/dashboard" replace />} 
       />
 
       {/* Protected routes */}

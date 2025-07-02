@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../services/api';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
@@ -43,11 +44,14 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       
+      toast.success(`Bienvenue ${userData.name} ! Connexion réussie.`);
       return { success: true };
     } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Erreur de connexion';
+      toast.error(errorMessage);
       return {
         success: false,
-        error: error.response?.data?.message || 'Erreur de connexion',
+        error: errorMessage,
       };
     }
   };
@@ -64,13 +68,16 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       
+      toast.success(`Compte créé avec succès ! Bienvenue ${userData.name}.`);
       return { success: true };
     } catch (error) {
       console.error('❌ Erreur d\'inscription:', error);
       console.error('❌ Détails de l\'erreur:', error.response?.data);
+      const errorMessage = error.response?.data?.message || 'Erreur lors de l\'inscription';
+      toast.error(errorMessage);
       return {
         success: false,
-        error: error.response?.data?.message || 'Erreur lors de l\'inscription',
+        error: errorMessage,
       };
     }
   };
@@ -79,6 +86,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    toast.success('Déconnexion réussie. À bientôt !');
   };
 
   const forgotPassword = async (email) => {

@@ -213,7 +213,7 @@ export const authAPI = {
 
   // Reset Password
   resetPassword: async (token, password) => {
-    const response = await axios.post(`/auth/reset-password`, {
+    const response = await axios.put(`/auth/reset-password`, {
       token,
       password
     });

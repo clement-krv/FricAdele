@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { validateSchema, validateField, loginSchema, registerSchema } from '../../utils/validation';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,14 +15,27 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const { login, register } = useAuth();
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+    
+    // Validation en temps réel
+    const schema = isLogin ? loginSchema : registerSchema;
+    const fieldError = validateField(schema, name, value, formData);
+    
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: fieldError
+    }));
+    
     if (error) setError('');
   };
 
@@ -28,6 +43,18 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setFieldErrors({});
+
+    // Validation avec Zod
+    const schema = isLogin ? loginSchema : registerSchema;
+    const validation = validateSchema(schema, formData);
+    
+    if (!validation.success) {
+      setFieldErrors(validation.errors);
+      setLoading(false);
+      toast.error('Veuillez corriger les erreurs du formulaire');
+      return;
+    }
 
     try {
       let result;
@@ -39,9 +66,14 @@ const Login = () => {
 
       if (!result.success) {
         setError(result.error);
+        toast.error(result.error);
+      } else {
+        toast.success(isLogin ? 'Connexion réussie !' : 'Inscription réussie !');
       }
     } catch (err) {
-      setError('Une erreur inattendue s\'est produite');
+      const errorMessage = 'Une erreur inattendue s\'est produite';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -83,10 +115,15 @@ const Login = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required={!isLogin}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    fieldErrors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="Votre nom complet"
                 />
               </div>
+              {fieldErrors.name && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.name}</p>
+              )}
             </div>
           )}
 
@@ -103,10 +140,15 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  fieldErrors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="votre@email.com"
               />
             </div>
+            {fieldErrors.email && (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -122,7 +164,9 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  fieldErrors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="••••••••"
               />
               <button
@@ -137,6 +181,9 @@ const Login = () => {
                 )}
               </button>
             </div>
+            {fieldErrors.password && (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+            )}
           </div>
 
           {isLogin && (
@@ -173,6 +220,7 @@ const Login = () => {
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');
+                setFieldErrors({});
                 setFormData({ email: '', password: '', name: '' });
               }}
               className="ml-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { expenseAPI } from '../services/api';
 import { formatCurrency } from '../utils/helpers';
+import toast from 'react-hot-toast';
 import {
   Search,
   Filter,
@@ -35,6 +36,7 @@ const ExpenseList = () => {
       setExpenses(response.expenses || []);
     } catch (err) {
       setError('Erreur lors du chargement des dépenses');
+      toast.error('Erreur lors du chargement des dépenses');
       console.error('Error fetching expenses:', err);
     } finally {
       setLoading(false);
@@ -49,9 +51,10 @@ const ExpenseList = () => {
     try {
       await expenseAPI.deleteExpense(expenseId);
       setExpenses(expenses.filter(expense => expense._id !== expenseId));
+      toast.success('Dépense supprimée avec succès !');
     } catch (err) {
       console.error('Error deleting expense:', err);
-      alert('Erreur lors de la suppression de la dépense');
+      toast.error('Erreur lors de la suppression de la dépense');
     }
   };
 

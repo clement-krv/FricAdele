@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { expenseAPI, categoryAPI, tagAPI } from '../services/api';
 import { ArrowLeft, Save, X } from 'lucide-react';
+import { validateSchema, validateField, expenseSchema } from '../utils/validation';
+import toast from 'react-hot-toast';
 
 const EditExpense = () => {
   const { id } = useParams();
@@ -10,6 +12,7 @@ const EditExpense = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   
   const [formData, setFormData] = useState({
     amount: '',
@@ -65,6 +68,15 @@ const EditExpense = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Validation en temps réel
+    const fieldError = validateField(expenseSchema, name, value, formData);
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: fieldError
+    }));
+    
+    if (error) setError('');
   };
 
   const handleTagToggle = (tagId) => {
@@ -78,14 +90,28 @@ const EditExpense = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.amount || !formData.description || !formData.date) {
-      setError('Veuillez remplir tous les champs obligatoires');
+    // Préparer les données pour la validation
+    const dataToValidate = {
+      ...formData,
+      tags: selectedTags.map(tagId => {
+        const tag = tags.find(t => t._id === tagId);
+        return tag ? { _id: tag._id, name: tag.name } : null;
+      }).filter(Boolean)
+    };
+
+    // Validation avec Zod
+    const validation = validateSchema(expenseSchema, dataToValidate);
+    
+    if (!validation.success) {
+      setFieldErrors(validation.errors);
+      toast.error('Veuillez corriger les erreurs du formulaire');
       return;
     }
 
     try {
       setSaving(true);
       setError('');
+      setFieldErrors({});
 
       const expenseData = {
         amount: parseFloat(formData.amount),
@@ -97,12 +123,15 @@ const EditExpense = () => {
 
       await expenseAPI.updateExpense(id, expenseData);
       
+      toast.success('Dépense modifiée avec succès !');
       navigate(`/expenses/${id}`, { 
         replace: true,
         state: { message: 'Dépense modifiée avec succès' }
       });
     } catch (err) {
-      setError(err.response?.data?.message || 'Erreur lors de la modification de la dépense');
+      const errorMessage = err.response?.data?.message || 'Erreur lors de la modification de la dépense';
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error('Error updating expense:', err);
     } finally {
       setSaving(false);
@@ -163,13 +192,18 @@ const EditExpense = () => {
                   step="0.01"
                   min="0"
                   required
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full border rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    fieldErrors.amount ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="0.00"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                   <span className="text-gray-500 text-sm">€</span>
                 </div>
               </div>
+              {fieldErrors.amount && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.amount}</p>
+              )}
             </div>
 
             {/* Description */}
@@ -184,9 +218,14 @@ const EditExpense = () => {
                 onChange={handleInputChange}
                 rows={3}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  fieldErrors.description ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="Décrivez votre dépense..."
               />
+              {fieldErrors.description && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.description}</p>
+              )}
             </div>
 
             {/* Date */}
@@ -201,8 +240,13 @@ const EditExpense = () => {
                 value={formData.date}
                 onChange={handleInputChange}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  fieldErrors.date ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
               />
+              {fieldErrors.date && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.date}</p>
+              )}
             </div>
 
             {/* Category */}

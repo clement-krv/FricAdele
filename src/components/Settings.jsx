@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { categoryAPI, tagAPI } from '../services/api';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
+import { validateSchema, validateField, categorySchema, tagSchema } from '../utils/validation';
+import toast from 'react-hot-toast';
 
 const Settings = () => {
   const [categories, setCategories] = useState([]);
@@ -12,6 +14,10 @@ const Settings = () => {
   const [newTag, setNewTag] = useState({ name: '' });
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddTag, setShowAddTag] = useState(false);
+  const [categoryFieldErrors, setCategoryFieldErrors] = useState({});
+  const [tagFieldErrors, setTagFieldErrors] = useState({});
+  const [editCategoryErrors, setEditCategoryErrors] = useState({});
+  const [editTagErrors, setEditTagErrors] = useState({});
 
   const defaultColors = [
     '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
@@ -39,31 +45,64 @@ const Settings = () => {
     }
   };
 
-  // Category Management
+  // Category Management avec validation Zod
+  const handleCategoryInputChange = (field, value) => {
+    setNewCategory(prev => ({ ...prev, [field]: value }));
+    
+    // Validation en temps réel
+    const fieldError = validateField(categorySchema, field, value, newCategory);
+    setCategoryFieldErrors(prev => ({
+      ...prev,
+      [field]: fieldError
+    }));
+  };
+
   const handleCreateCategory = async () => {
-    if (!newCategory.name.trim()) return;
+    // Validation avec Zod
+    const validation = validateSchema(categorySchema, newCategory);
+    
+    if (!validation.success) {
+      setCategoryFieldErrors(validation.errors);
+      toast.error('Veuillez corriger les erreurs du formulaire');
+      return;
+    }
 
     try {
       const response = await categoryAPI.createCategory(newCategory);
       setCategories([...categories, response.category]);
       setNewCategory({ name: '', color: '#3B82F6' });
       setShowAddCategory(false);
+      setCategoryFieldErrors({});
+      toast.success('Catégorie créée avec succès !');
     } catch (err) {
       console.error('Error creating category:', err);
-      alert('Erreur lors de la création de la catégorie');
+      const errorMessage = err.response?.data?.message || 'Erreur lors de la création de la catégorie';
+      toast.error(errorMessage);
     }
   };
 
   const handleUpdateCategory = async (id, updatedData) => {
+    // Validation avec Zod
+    const validation = validateSchema(categorySchema, updatedData);
+    
+    if (!validation.success) {
+      setEditCategoryErrors(validation.errors);
+      toast.error('Veuillez corriger les erreurs du formulaire');
+      return;
+    }
+
     try {
       const response = await categoryAPI.updateCategory(id, updatedData);
       setCategories(categories.map(cat => 
         cat._id === id ? response.category : cat
       ));
       setEditingCategory(null);
+      setEditCategoryErrors({});
+      toast.success('Catégorie mise à jour avec succès !');
     } catch (err) {
       console.error('Error updating category:', err);
-      alert('Erreur lors de la mise à jour de la catégorie');
+      const errorMessage = err.response?.data?.message || 'Erreur lors de la mise à jour de la catégorie';
+      toast.error(errorMessage);
     }
   };
 
@@ -75,37 +114,72 @@ const Settings = () => {
     try {
       await categoryAPI.deleteCategory(id);
       setCategories(categories.filter(cat => cat._id !== id));
+      toast.success('Catégorie supprimée avec succès !');
     } catch (err) {
       console.error('Error deleting category:', err);
-      alert('Erreur lors de la suppression de la catégorie');
+      const errorMessage = err.response?.data?.message || 'Erreur lors de la suppression de la catégorie';
+      toast.error(errorMessage);
     }
   };
 
-  // Tag Management
+  // Tag Management avec validation Zod
+  const handleTagInputChange = (value) => {
+    setNewTag({ name: value });
+    
+    // Validation en temps réel
+    const fieldError = validateField(tagSchema, 'name', value, { name: value });
+    setTagFieldErrors(prev => ({
+      ...prev,
+      name: fieldError
+    }));
+  };
+
   const handleCreateTag = async () => {
-    if (!newTag.name.trim()) return;
+    // Validation avec Zod
+    const validation = validateSchema(tagSchema, newTag);
+    
+    if (!validation.success) {
+      setTagFieldErrors(validation.errors);
+      toast.error('Veuillez corriger les erreurs du formulaire');
+      return;
+    }
 
     try {
       const response = await tagAPI.createTag(newTag);
       setTags([...tags, response.tag]);
       setNewTag({ name: '' });
       setShowAddTag(false);
+      setTagFieldErrors({});
+      toast.success('Tag créé avec succès !');
     } catch (err) {
       console.error('Error creating tag:', err);
-      alert('Erreur lors de la création du tag');
+      const errorMessage = err.response?.data?.message || 'Erreur lors de la création du tag';
+      toast.error(errorMessage);
     }
   };
 
   const handleUpdateTag = async (id, updatedData) => {
+    // Validation avec Zod
+    const validation = validateSchema(tagSchema, updatedData);
+    
+    if (!validation.success) {
+      setEditTagErrors(validation.errors);
+      toast.error('Veuillez corriger les erreurs du formulaire');
+      return;
+    }
+
     try {
       const response = await tagAPI.updateTag(id, updatedData);
       setTags(tags.map(tag => 
         tag._id === id ? response.tag : tag
       ));
       setEditingTag(null);
+      setEditTagErrors({});
+      toast.success('Tag mis à jour avec succès !');
     } catch (err) {
       console.error('Error updating tag:', err);
-      alert('Erreur lors de la mise à jour du tag');
+      const errorMessage = err.response?.data?.message || 'Erreur lors de la mise à jour du tag';
+      toast.error(errorMessage);
     }
   };
 
@@ -117,9 +191,11 @@ const Settings = () => {
     try {
       await tagAPI.deleteTag(id);
       setTags(tags.filter(tag => tag._id !== id));
+      toast.success('Tag supprimé avec succès !');
     } catch (err) {
       console.error('Error deleting tag:', err);
-      alert('Erreur lors de la suppression du tag');
+      const errorMessage = err.response?.data?.message || 'Erreur lors de la suppression du tag';
+      toast.error(errorMessage);
     }
   };
 
@@ -169,10 +245,15 @@ const Settings = () => {
                       <input
                         type="text"
                         value={newCategory.name}
-                        onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onChange={(e) => handleCategoryInputChange('name', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          categoryFieldErrors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        }`}
                         placeholder="Ex: Alimentation, Transport..."
                       />
+                      {categoryFieldErrors.name && (
+                        <p className="mt-1 text-sm text-red-600">{categoryFieldErrors.name}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -182,7 +263,7 @@ const Settings = () => {
                         {defaultColors.map((color) => (
                           <button
                             key={color}
-                            onClick={() => setNewCategory({ ...newCategory, color })}
+                            onClick={() => handleCategoryInputChange('color', color)}
                             className={`w-8 h-8 rounded-full border-2 transition-all ${
                               newCategory.color === color 
                                 ? 'border-gray-800 scale-110' 
@@ -192,6 +273,9 @@ const Settings = () => {
                           />
                         ))}
                       </div>
+                      {categoryFieldErrors.color && (
+                        <p className="mt-1 text-sm text-red-600">{categoryFieldErrors.color}</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex space-x-3 mt-4">
@@ -206,6 +290,7 @@ const Settings = () => {
                       onClick={() => {
                         setShowAddCategory(false);
                         setNewCategory({ name: '', color: '#3B82F6' });
+                        setCategoryFieldErrors({});
                       }}
                       className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
@@ -231,6 +316,14 @@ const Settings = () => {
                           onSave={(updatedData) => handleUpdateCategory(category._id, updatedData)}
                           onCancel={() => setEditingCategory(null)}
                           defaultColors={defaultColors}
+                          editErrors={editCategoryErrors}
+                          onInputChange={(field, value) => {
+                            const fieldError = validateField(categorySchema, field, value, { name: category.name, color: category.color });
+                            setEditCategoryErrors(prev => ({
+                              ...prev,
+                              [field]: fieldError
+                            }));
+                          }}
                         />
                       ) : (
                         <>
@@ -285,13 +378,20 @@ const Settings = () => {
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Nouveau tag</h3>
                   <div className="flex space-x-3">
-                    <input
-                      type="text"
-                      value={newTag.name}
-                      onChange={(e) => setNewTag({ name: e.target.value })}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Nom du tag"
-                    />
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={newTag.name}
+                        onChange={(e) => handleTagInputChange(e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          tagFieldErrors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        }`}
+                        placeholder="Nom du tag"
+                      />
+                      {tagFieldErrors.name && (
+                        <p className="mt-1 text-sm text-red-600">{tagFieldErrors.name}</p>
+                      )}
+                    </div>
                     <button
                       onClick={handleCreateTag}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
@@ -303,6 +403,7 @@ const Settings = () => {
                       onClick={() => {
                         setShowAddTag(false);
                         setNewTag({ name: '' });
+                        setTagFieldErrors({});
                       }}
                       className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
@@ -327,6 +428,14 @@ const Settings = () => {
                           tag={tag}
                           onSave={(updatedData) => handleUpdateTag(tag._id, updatedData)}
                           onCancel={() => setEditingTag(null)}
+                          editErrors={editTagErrors}
+                          onInputChange={(value) => {
+                            const fieldError = validateField(tagSchema, 'name', value, { name: value });
+                            setEditTagErrors(prev => ({
+                              ...prev,
+                              name: fieldError
+                            }));
+                          }}
                         />
                       ) : (
                         <>
@@ -357,15 +466,24 @@ const Settings = () => {
   );
 };
 
-// Helper Components
-const CategoryEditForm = ({ category, onSave, onCancel, defaultColors }) => {
+// Helper Components avec validation
+const CategoryEditForm = ({ category, onSave, onCancel, defaultColors, editErrors, onInputChange }) => {
   const [editData, setEditData] = useState({
     name: category.name,
     color: category.color
   });
 
+  const handleInputChange = (field, value) => {
+    setEditData(prev => ({ ...prev, [field]: value }));
+    onInputChange(field, value);
+  };
+
   const handleSave = () => {
-    if (!editData.name.trim()) return;
+    const validation = validateSchema(categorySchema, editData);
+    if (!validation.success) {
+      toast.error('Veuillez corriger les erreurs du formulaire');
+      return;
+    }
     onSave(editData);
   };
 
@@ -376,7 +494,7 @@ const CategoryEditForm = ({ category, onSave, onCancel, defaultColors }) => {
           {defaultColors.map((color) => (
             <button
               key={color}
-              onClick={() => setEditData({ ...editData, color })}
+              onClick={() => handleInputChange('color', color)}
               className={`w-6 h-6 rounded-full border transition-all ${
                 editData.color === color 
                   ? 'border-gray-800 scale-110' 
@@ -386,12 +504,19 @@ const CategoryEditForm = ({ category, onSave, onCancel, defaultColors }) => {
             />
           ))}
         </div>
-        <input
-          type="text"
-          value={editData.name}
-          onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-          className="flex-1 px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
+        <div className="flex-1">
+          <input
+            type="text"
+            value={editData.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+            className={`w-full px-3 py-1 border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              editErrors?.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
+          />
+          {editErrors?.name && (
+            <p className="mt-1 text-xs text-red-600">{editErrors.name}</p>
+          )}
+        </div>
       </div>
       <div className="flex items-center space-x-2 ml-3">
         <button
@@ -411,23 +536,39 @@ const CategoryEditForm = ({ category, onSave, onCancel, defaultColors }) => {
   );
 };
 
-const TagEditForm = ({ tag, onSave, onCancel }) => {
+const TagEditForm = ({ tag, onSave, onCancel, editErrors, onInputChange }) => {
   const [editData, setEditData] = useState({ name: tag.name });
 
+  const handleInputChange = (value) => {
+    setEditData({ name: value });
+    onInputChange(value);
+  };
+
   const handleSave = () => {
-    if (!editData.name.trim()) return;
+    const validation = validateSchema(tagSchema, editData);
+    if (!validation.success) {
+      toast.error('Veuillez corriger les erreurs du formulaire');
+      return;
+    }
     onSave(editData);
   };
 
   return (
     <div className="flex items-center space-x-2">
-      <input
-        type="text"
-        value={editData.name}
-        onChange={(e) => setEditData({ name: e.target.value })}
-        className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        style={{ width: '100px' }}
-      />
+      <div>
+        <input
+          type="text"
+          value={editData.name}
+          onChange={(e) => handleInputChange(e.target.value)}
+          className={`px-2 py-1 border rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+            editErrors?.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+          }`}
+          style={{ width: '100px' }}
+        />
+        {editErrors?.name && (
+          <p className="mt-1 text-xs text-red-600">{editErrors.name}</p>
+        )}
+      </div>
       <button
         onClick={handleSave}
         className="text-green-600 hover:text-green-700 transition-colors"
