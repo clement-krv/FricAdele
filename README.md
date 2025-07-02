@@ -502,7 +502,7 @@ FricAdele/
 
 ---
 
-## Auteur
+## 👨‍💻 Auteur
 
 <div align="center">
 
@@ -517,7 +517,7 @@ FricAdele/
 
 ---
 
-## À Propos du Projet
+## 📚 À Propos du Projet
 
 Ce projet a été développé dans le cadre d'un exercice pédagogique à l'**ESGI de Nantes** pour les cours de :
 - **React.js** - Développement d'interfaces utilisateur modernes
