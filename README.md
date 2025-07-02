@@ -1,6 +1,6 @@
 # FricAdele - Application de Gestion de Budget Personnel
 
-Une application web complète et responsive pour la gestion de budget personnel, développée avec React (frontend) et Node.js/Express (backend), utilisant MongoDB pour la persistance des données et Redis pour le cache des statistiques.
+Une application web complète et responsive pour la gestion de budget personnel, développée avec React (frontend) et Node.js/Express (backend), utilisant MongoDB pour la persistance des données et Redis pour le cache des statistiques. (V1 - Base en JS)
 
 ## � Table des Matières
 
