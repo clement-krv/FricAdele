@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -15,7 +16,7 @@ import EditExpense from './components/EditExpense';
 import ExpenseList from './components/ExpenseList';
 
 // Layout component for authenticated pages
-const AppLayout = ({ children }) => {
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -25,7 +26,7 @@ const AppLayout = ({ children }) => {
 };
 
 // Main App component
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
@@ -40,10 +41,6 @@ function App() {
             },
             success: {
               duration: 3000,
-              theme: {
-                primary: 'green',
-                secondary: 'black',
-              },
             },
           }}
         />
@@ -53,7 +50,7 @@ function App() {
 }
 
 // App content with routing
-const AppContent = () => {
+const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {

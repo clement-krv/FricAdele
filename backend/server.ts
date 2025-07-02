@@ -1,10 +1,13 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+import express, { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import * as dotenv from 'dotenv';
+
+// Configure dotenv
+dotenv.config();
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -45,7 +48,7 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => {
+  skip: (req: Request) => {
     // Skip rate limiting for localhost in development
     if (process.env.NODE_ENV === 'development' && 
         (req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1')) {
@@ -60,7 +63,7 @@ app.use(limiter);
 
 // Logging middleware
 app.use(morgan('combined', {
-  skip: (req, res) => res.statusCode < 400
+  skip: (_req: Request, res: Response) => res.statusCode < 400
 }));
 
 // Body parsing middleware
@@ -68,7 +71,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Debug middleware pour voir les requêtes
-app.use((req, res, next) => {
+app.use((req: Request, _res: Response, next: NextFunction) => {
   console.log(`🌐 ${req.method} ${req.path} - Origin: ${req.get('origin')} - IP: ${req.ip}`);
   next();
 });
@@ -84,7 +87,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fricadele
 const redis = require('./utils/redis');
 
 // Health check route
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'OK',
     message: 'FricAdele API is running',
@@ -100,7 +103,7 @@ app.use('/api/tags', tagRoutes);
 app.use('/api/statistics', statisticsRoutes);
 
 // Catch all route for unmatched requests
-app.get('*', (req, res) => {
+app.get('*', (req: Request, res: Response) => {
   res.status(404).json({
     success: false,
     message: 'Route non trouvée'

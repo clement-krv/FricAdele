@@ -1,6 +1,14 @@
 import axios from 'axios';
+import type { User, Expense, Category, Tag, AuthResponse, ExpenseFilters } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+// Extend Window interface for showNotification
+declare global {
+  interface Window {
+    showNotification?: (message: string, type: string) => void;
+  }
+}
 
 // Configuration globale d'axios
 axios.defaults.baseURL = API_URL;
@@ -54,10 +62,10 @@ axios.interceptors.response.use(
 
 export const expenseAPI = {
   // Get all expenses
-  getExpenses: async (filters = {}) => {
+  getExpenses: async (filters: ExpenseFilters = {}) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.append(key, value);
+      if (value) params.append(key, String(value));
     });
     
     const response = await axios.get(`/expenses?${params}`);
@@ -65,31 +73,31 @@ export const expenseAPI = {
   },
 
   // Get single expense
-  getExpense: async (id) => {
+  getExpense: async (id: string) => {
     const response = await axios.get(`/expenses/${id}`);
     return response.data;
   },
 
   // Create expense
-  createExpense: async (expenseData) => {
+  createExpense: async (expenseData: Partial<Expense>) => {
     const response = await axios.post(`/expenses`, expenseData);
     return response.data;
   },
 
   // Update expense
-  updateExpense: async (id, expenseData) => {
+  updateExpense: async (id: string, expenseData: Partial<Expense>) => {
     const response = await axios.put(`/expenses/${id}`, expenseData);
     return response.data;
   },
 
   // Delete expense
-  deleteExpense: async (id) => {
+  deleteExpense: async (id: string) => {
     const response = await axios.delete(`/expenses/${id}`);
     return response.data;
   },
 
   // Get expenses by date range
-  getExpensesByDateRange: async (startDate, endDate) => {
+  getExpensesByDateRange: async (startDate: string, endDate: string) => {
     const response = await axios.get(`/expenses/date-range`, {
       params: { startDate, endDate }
     });
@@ -105,19 +113,19 @@ export const categoryAPI = {
   },
 
   // Create category
-  createCategory: async (categoryData) => {
+  createCategory: async (categoryData: Partial<Category>) => {
     const response = await axios.post(`/categories`, categoryData);
     return response.data;
   },
 
   // Update category
-  updateCategory: async (id, categoryData) => {
+  updateCategory: async (id: string, categoryData: Partial<Category>) => {
     const response = await axios.put(`/categories/${id}`, categoryData);
     return response.data;
   },
 
   // Delete category
-  deleteCategory: async (id) => {
+  deleteCategory: async (id: string) => {
     const response = await axios.delete(`/categories/${id}`);
     return response.data;
   },
@@ -131,19 +139,19 @@ export const tagAPI = {
   },
 
   // Create tag
-  createTag: async (tagData) => {
+  createTag: async (tagData: Partial<Tag>) => {
     const response = await axios.post(`/tags`, tagData);
     return response.data;
   },
 
   // Update tag
-  updateTag: async (id, tagData) => {
+  updateTag: async (id: string, tagData: Partial<Tag>) => {
     const response = await axios.put(`/tags/${id}`, tagData);
     return response.data;
   },
 
   // Delete tag
-  deleteTag: async (id) => {
+  deleteTag: async (id: string) => {
     const response = await axios.delete(`/tags/${id}`);
     return response.data;
   },
@@ -151,7 +159,7 @@ export const tagAPI = {
 
 export const statisticsAPI = {
   // Get monthly statistics
-  getMonthlyStats: async (year, month) => {
+  getMonthlyStats: async (year: number, month: number) => {
     const response = await axios.get(`/statistics/monthly`, {
       params: { year, month }
     });
@@ -159,7 +167,7 @@ export const statisticsAPI = {
   },
 
   // Get yearly statistics
-  getYearlyStats: async (year) => {
+  getYearlyStats: async (year: number) => {
     const response = await axios.get(`/statistics/yearly`, {
       params: { year }
     });
@@ -167,7 +175,7 @@ export const statisticsAPI = {
   },
 
   // Get category distribution
-  getCategoryDistribution: async (startDate, endDate) => {
+  getCategoryDistribution: async (startDate: string, endDate: string) => {
     const response = await axios.get(`/statistics/categories`, {
       params: { startDate, endDate }
     });
@@ -175,7 +183,7 @@ export const statisticsAPI = {
   },
 
   // Get spending trends
-  getSpendingTrends: async (months = 12) => {
+  getSpendingTrends: async (months: number = 12) => {
     const response = await axios.get(`/statistics/trends`, {
       params: { months }
     });
@@ -185,7 +193,7 @@ export const statisticsAPI = {
 
 export const authAPI = {
   // Login
-  login: async (email, password) => {
+  login: async (email: string, password: string): Promise<AuthResponse> => {
     const response = await axios.post(`/auth/login`, {
       email,
       password
@@ -194,7 +202,7 @@ export const authAPI = {
   },
 
   // Register
-  register: async (name, email, password) => {
+  register: async (name: string, email: string, password: string): Promise<AuthResponse> => {
     const response = await axios.post(`/auth/register`, {
       name,
       email,
@@ -204,7 +212,7 @@ export const authAPI = {
   },
 
   // Forgot Password
-  forgotPassword: async (email) => {
+  forgotPassword: async (email: string) => {
     const response = await axios.post(`/auth/forgot-password`, {
       email
     });
@@ -212,7 +220,7 @@ export const authAPI = {
   },
 
   // Reset Password
-  resetPassword: async (token, password) => {
+  resetPassword: async (token: string, password: string) => {
     const response = await axios.put(`/auth/reset-password`, {
       token,
       password
@@ -227,7 +235,7 @@ export const authAPI = {
   },
 
   // Update Profile
-  updateProfile: async (profileData) => {
+  updateProfile: async (profileData: Partial<User>) => {
     const response = await axios.put(`/auth/profile`, profileData);
     return response.data;
   },
