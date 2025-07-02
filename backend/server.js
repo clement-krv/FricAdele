@@ -12,6 +12,7 @@ const expenseRoutes = require('./routes/expenses');
 const categoryRoutes = require('./routes/categories');
 const tagRoutes = require('./routes/tags');
 const statisticsRoutes = require('./routes/statistics');
+const recurringRoutes = require('./routes/recurring-simple');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -98,6 +99,7 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/statistics', statisticsRoutes);
+app.use('/api/recurring', recurringRoutes);
 
 // Catch all route for unmatched requests
 app.get('*', (req, res) => {
