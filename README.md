@@ -2,7 +2,43 @@
 
 Une application web complète et responsive pour la gestion de budget personnel, développée avec React (frontend) et Node.js/Express (backend), utilisant MongoDB pour la persistance des données et Redis pour le cache des statistiques.
 
-## 🚀 Fonctionnalités
+## � Table des Matières
+
+- [🚀 Fonctionnalités](#-fonctionnalités)
+  - [🔐 Authentification](#-authentification)
+  - [💸 Gestion des Dépenses](#-gestion-des-dépenses)
+  - [📊 Statistiques](#-statistiques)
+  - [🎨 UX/UI Améliorée](#-uxui-améliorée)
+- [🏗️ Architecture Technique](#️-architecture-technique)
+  - [Frontend (React)](#frontend-react)
+  - [Backend (Node.js)](#backend-nodejs)
+  - [Base de Données](#base-de-données)
+- [🛡️ Validation et Feedback Utilisateur](#️-validation-et-feedback-utilisateur)
+  - [Validation Zod](#validation-zod-srcutilsvalidationjs)
+  - [Notifications Toast](#notifications-toast-react-hot-toast)
+  - [Composants avec Validation Intégrée](#composants-avec-validation-intégrée)
+- [🛠️ Installation et Configuration](#️-installation-et-configuration)
+  - [Prérequis](#prérequis)
+  - [Dépendances Principales](#dépendances-principales)
+  - [Configuration Backend](#2-configuration-du-backend)
+  - [Configuration Frontend](#3-configuration-du-frontend)
+- [🚀 Lancement de l'Application](#-lancement-de-lapplication)
+  - [Installation des Services](#installation-des-services-requis-windows)
+  - [Mode Développement](#mode-développement---méthode-recommandée)
+  - [Vérification](#vérification-du-fonctionnement)
+- [🛠️ Scripts Disponibles](#️-scripts-disponibles)
+- [🔧 Dépannage](#-dépannage)
+- [📊 API Endpoints](#-api-endpoints)
+- [🔧 Choix Techniques](#-choix-techniques-importants)
+- [🎯 Guide de Démarrage Rapide](#-guide-de-démarrage-rapide)
+- [📁 Structure du Projet](#-structure-du-projet)
+- [🎯 Fonctionnalités Avancées](#-fonctionnalités-avancées)
+- [👨‍💻 Auteur](#-auteur)
+- [📚 À Propos du Projet](#-à-propos-du-projet)
+
+---
+
+## �🚀 Fonctionnalités
 
 ### 🔐 Authentification
 - ✅ Création de compte avec validation en temps réel (nom, email, mot de passe sécurisé)
