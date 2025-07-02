@@ -5,18 +5,22 @@ Une application web complète et responsive pour la gestion de budget personnel,
 ## 🚀 Fonctionnalités
 
 ### 🔐 Authentification
-- ✅ Création de compte (email, mot de passe)
-- ✅ Connexion avec vérification des identifiants
-- ✅ Fonction "mot de passe oublié" avec envoi d'email
-- ✅ Authentification JWT côté client
-- ✅ Protection des routes
+- ✅ Création de compte avec validation en temps réel (nom, email, mot de passe sécurisé)
+- ✅ Connexion avec validation des champs obligatoires
+- ✅ Fonction "mot de passe oublié" avec envoi d'email sécurisé
+- ✅ Réinitialisation de mot de passe avec token et validation renforcée
+- ✅ Authentification JWT côté client avec feedback utilisateur
+- ✅ Protection des routes avec gestion des erreurs
+- ✅ Notifications toast pour tous les événements d'authentification
 
 ### 💸 Gestion des Dépenses
-- ✅ Ajouter une dépense (montant, description, date, catégorie, tags)
-- ✅ Gérer les catégories personnalisées (ajouter, modifier, supprimer)
-- ✅ Ajouter et associer des tags à chaque dépense
-- ✅ Modifier et supprimer ses dépenses
+- ✅ Ajouter une dépense avec validation Zod (montant, description, date, catégorie, tags)
+- ✅ Validation en temps réel sur tous les formulaires avec messages d'erreur français
+- ✅ Modifier et supprimer ses dépenses avec confirmation et feedback
+- ✅ Gérer les catégories personnalisées (nom, couleur, description) avec validation
+- ✅ Ajouter et associer des tags avec validation en temps réel
 - ✅ Filtrage et recherche des dépenses
+- ✅ Notifications toast pour toutes les actions (ajout, modification, suppression)
 
 ### 📊 Statistiques
 - ✅ Répartition mensuelle des dépenses par catégorie (diagramme camembert)
@@ -25,11 +29,14 @@ Une application web complète et responsive pour la gestion de budget personnel,
 - ✅ Comparaison avec les mois précédents
 - ✅ Analyse détaillée par période
 
-### 📱 Design Responsive
+### 🎨 UX/UI Améliorée
 - ✅ Interface optimisée pour mobile et desktop
 - ✅ Design moderne avec Tailwind CSS
-- ✅ Navigation intuitive
-- ✅ Expérience utilisateur fluide
+- ✅ Navigation intuitive avec feedback utilisateur
+- ✅ Validation en temps réel (onChange) sur tous les formulaires
+- ✅ Messages d'erreur contextuels en français sous chaque champ
+- ✅ Notifications toast pour toutes les actions importantes
+- ✅ Gestion cohérente des états de chargement et d'erreur
 
 ## 🏗️ Architecture Technique
 
@@ -38,6 +45,8 @@ Une application web complète et responsive pour la gestion de budget personnel,
 - **Styling**: Tailwind CSS 4
 - **Routing**: React Router DOM
 - **State Management**: Context API
+- **Validation**: Zod avec validation en temps réel
+- **Notifications**: React Hot Toast
 - **Charts**: Recharts
 - **HTTP Client**: Axios
 - **Icons**: Lucide React
@@ -59,6 +68,35 @@ Une application web complète et responsive pour la gestion de budget personnel,
   - Cache des statistiques calculées
   - TTL configurable par type de données
 
+## 🛡️ Validation et Feedback Utilisateur
+
+### Validation Zod (src/utils/validation.js)
+- **Schémas centralisés** pour tous les formulaires
+- **Validation en temps réel** (onChange) avec messages d'erreur contextuels
+- **Messages en français** sous chaque champ de saisie
+- **Schémas disponibles** :
+  - `loginSchema` : Email et mot de passe (connexion)
+  - `registerSchema` : Nom, email, mot de passe sécurisé (inscription)
+  - `forgotPasswordSchema` : Email (mot de passe oublié)
+  - `resetPasswordSchema` : Nouveau mot de passe avec confirmation
+  - `expenseSchema` : Montant, description, date, catégorie, tags
+  - `categorySchema` : Nom, couleur hexadécimale, description optionnelle
+  - `tagSchema` : Nom du tag avec contraintes de longueur
+
+### Notifications Toast (React Hot Toast)
+- **Toasts de succès** : Connexion, inscription, ajout/modification/suppression de dépenses
+- **Toasts d'erreur** : Erreurs de validation, erreurs réseau, actions échouées
+- **Feedback instantané** : Confirmation visuelle pour toutes les actions utilisateur
+- **Messages cohérents** : Terminologie uniforme et messages explicites en français
+
+### Composants avec Validation Intégrée
+- `Login.jsx` : Connexion et inscription avec validation Zod + toasts
+- `ForgotPassword.jsx` : Demande de réinitialisation avec validation email
+- `ResetPassword.jsx` : Nouveau mot de passe avec validation renforcée
+- `AddExpense.jsx` / `EditExpense.jsx` : Formulaires de dépenses avec validation complète
+- `Settings.jsx` : Gestion des catégories et tags avec validation en temps réel
+- `ExpenseList.jsx` / `ExpenseDetail.jsx` : Actions avec confirmations et feedback
+
 ## 🛠️ Installation et Configuration
 
 ### Prérequis
@@ -67,9 +105,33 @@ Une application web complète et responsive pour la gestion de budget personnel,
 - Redis (local ou Redis Cloud)
 - npm ou yarn
 
+### Dépendances Principales
+
+**Frontend** :
+- `react` (19.1.0) - Framework UI
+- `react-router-dom` (7.6.3) - Routing
+- `axios` (1.10.0) - Client HTTP
+- `zod` (3.25.67) - 🆕 Validation de schémas
+- `react-hot-toast` (2.5.2) - 🆕 Notifications toast
+- `recharts` (3.0.2) - Graphiques et charts
+- `lucide-react` (0.525.0) - Icônes
+- `tailwindcss` (4.1.11) - Framework CSS
+- `@headlessui/react` (2.2.4) - Composants accessibles
+
+**Backend** :
+- `express` - Framework serveur
+- `mongoose` - ODM MongoDB
+- `jsonwebtoken` - Authentification JWT
+- `bcryptjs` - Hachage mot de passe
+- `nodemailer` - Envoi d'emails
+- `redis` - Cache en mémoire
+- `express-validator` - Validation serveur
+- `helmet` - Sécurité HTTP
+- `cors` - Configuration CORS
+
 ### 1. Cloner le Repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/clement-krv/FricAdele.git
 cd FricAdele
 ```
 
@@ -281,7 +343,7 @@ Si vous voyez des erreurs de connexion, vérifiez que :
 ### 1. Première Installation
 ```bash
 # Cloner le projet
-git clone <your-repo-url>
+git clone https://github.com/clement-krv/FricAdele.git
 cd FricAdele
 
 # Installer les dépendances
@@ -327,4 +389,102 @@ npm run dev:all
 
 C'est tout ! Votre application de gestion de budget est prête ! 🎉
 
+## 📁 Structure du Projet
+
+```
+FricAdele/
+├── backend/                    # API Node.js/Express
+│   ├── controllers/           # Logique métier
+│   │   ├── authController.js  # Authentification (login, register, reset)
+│   │   ├── expenseController.js # CRUD dépenses
+│   │   ├── categoryController.js # CRUD catégories
+│   │   ├── tagController.js   # CRUD tags
+│   │   └── statisticsController.js # Calculs statistiques
+│   ├── middleware/            # Middlewares personnalisés
+│   │   ├── auth.js           # Vérification JWT
+│   │   └── errorHandler.js   # Gestion d'erreurs globale
+│   ├── models/               # Modèles Mongoose
+│   │   ├── User.js           # Utilisateur avec auth
+│   │   ├── Expense.js        # Dépense avec relations
+│   │   ├── Category.js       # Catégorie personnalisée
+│   │   └── Tag.js            # Tag pour classification
+│   ├── routes/               # Routes API REST
+│   └── utils/                # Utilitaires (Redis, email)
+├── src/                      # Frontend React
+│   ├── components/           # Composants React
+│   │   ├── auth/             # Authentification
+│   │   │   ├── Login.jsx     # Connexion + inscription (validation Zod)
+│   │   │   ├── ForgotPassword.jsx # Mot de passe oublié
+│   │   │   └── ResetPassword.jsx  # Réinitialisation
+│   │   ├── layout/           # Layout et navigation
+│   │   │   └── Navbar.jsx    # Barre de navigation
+│   │   ├── AddExpense.jsx    # Ajout dépense (validation Zod + toasts)
+│   │   ├── EditExpense.jsx   # Modification dépense
+│   │   ├── ExpenseDetail.jsx # Détail dépense + suppression
+│   │   ├── ExpenseList.jsx   # Liste + recherche + filtres
+│   │   ├── Dashboard.jsx     # Tableau de bord principal
+│   │   ├── Settings.jsx      # Gestion catégories/tags (validation Zod)
+│   │   └── Statistics.jsx    # Graphiques et analyses
+│   ├── contexts/             # Contextes React
+│   │   └── AuthContext.jsx   # État auth global + toasts
+│   ├── services/             # Services API
+│   │   └── api.js            # Client HTTP Axios centralisé
+│   ├── utils/                # Utilitaires frontend
+│   │   ├── validation.js     # 🆕 Schémas Zod centralisés
+│   │   └── helpers.js        # Fonctions utilitaires
+│   └── App.jsx               # Composant racine + toaster
+└── public/                   # Assets statiques
+```
+
+## 🎯 Fonctionnalités Avancées
+
+### Validation en Temps Réel
+- **onChange Validation** : Validation instantanée à chaque frappe
+- **Messages Contextuels** : Erreurs spécifiques affichées sous chaque champ
+- **Validation Visuelle** : Bordures colorées (rouge/vert) selon l'état
+- **Désactivation Intelligente** : Boutons désactivés si formulaire invalide
+
+### Système de Notifications
+- **Toast de Bienvenue** : Message personnalisé à la connexion
+- **Confirmations d'Actions** : Feedback pour chaque CRUD operation
+- **Gestion d'Erreurs** : Messages explicites pour chaque type d'erreur
+- **Notifications Réseau** : Indicateurs de statut des requêtes API
+
+### Expérience Utilisateur
+- **États de Chargement** : Spinners et indicateurs de progression
+- **Confirmations de Suppression** : Dialogues de confirmation sécurisés
+- **Navigation Intelligente** : Redirections automatiques après actions
+- **Persistance d'État** : Conservation des données lors de la navigation
+
+### Sécurité Frontend
+- **Validation Côté Client** : Première couche de validation avec Zod
+- **Protection des Routes** : Redirections automatiques selon l'authentification
+- **Gestion de Sessions** : Logout automatique en cas d'expiration de token
+- **Échappement XSS** : Protection contre les injections de scripts
+
 **FricAdele** - Gérez votre budget personnel en toute simplicité ! 💰📊
+
+---
+
+## Auteur
+
+<div align="center">
+
+### **Clément Kerviche**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/clément-kerviche-6b7a44262/)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/clement-krv)
+
+*Étudiant en développement web à l'ESGI Nantes*
+
+</div>
+
+---
+
+## À Propos du Projet
+
+Ce projet a été développé dans le cadre d'un exercice pédagogique à l'**ESGI de Nantes** pour les cours de :
+- **React.js** - Développement d'interfaces utilisateur modernes
+- **Base de données NoSQL** - Gestion des données avec MongoDB
+
+L'objectif était de créer une application complète de gestion de budget personnel en utilisant les technologies web modernes et les meilleures pratiques de développement.
