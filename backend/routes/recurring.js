@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 const {
     getRecurringExpenses,
     getRecurringByCategory,
@@ -10,9 +10,9 @@ const {
 } = require('../controllers/recurringController');
 
 // Routes protégées (nécessitent une authentification)
-router.get('/expenses', auth, getRecurringExpenses);
-router.get('/categories', auth, getRecurringByCategory);
-router.get('/stats', auth, getUserNeo4jStats);
+router.get('/expenses', protect, getRecurringExpenses);
+router.get('/categories', protect, getRecurringByCategory);
+router.get('/stats', protect, getUserNeo4jStats);
 
 // Routes avec userId en paramètre (pour tester ou admin)
 router.get('/expenses/:userId', getRecurringExpenses);

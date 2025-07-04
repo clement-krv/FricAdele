@@ -14,6 +14,7 @@ const tagRoutes = require('./routes/tags');
 const statisticsRoutes = require('./routes/statistics');
 const recurringRoutes = require('./routes/recurring-simple');
 const neo4jRoutes = require('./routes/neo4j');
+const aiRoutes = require('./routes/ai');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -85,6 +86,24 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fricadele
 // Redis connection
 const redis = require('./utils/redis');
 
+// Initialize AI services
+const chromaService = require('./services/chromaService');
+const aiService = require('./services/aiService');
+
+// Initialize ChromaDB on startup
+chromaService.initialize()
+  .then(() => {
+    console.log('✅ ChromaDB initialisé');
+    // Initialiser les conseils généraux si nécessaire
+    return aiService.initializeTips();
+  })
+  .then(() => {
+    console.log('✅ Conseils IA initialisés');
+  })
+  .catch(err => {
+    console.error('❌ Erreur lors de l\'initialisation des services IA:', err);
+  });
+
 // Health check route
 app.get('/health', (req, res) => {
   res.status(200).json({
@@ -102,6 +121,7 @@ app.use('/api/tags', tagRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/recurring', recurringRoutes);
 app.use('/api/neo4j', neo4jRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Catch all route for unmatched requests
 app.get('*', (req, res) => {

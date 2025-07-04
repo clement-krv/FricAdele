@@ -1,0 +1,43 @@
+# Docker Compose pour l'assistant IA
+# Démarrer ChromaDB et Redis nécessaires pour l'assistant
+
+version: '3.8'
+
+services:
+  # ChromaDB - Base de données vectorielle
+  chromadb:
+    image: ghcr.io/chroma-core/chroma
+    container_name: fricadele_chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chromadb_data:/data
+    environment:
+      - CHROMA_DB_IMPL=duckdb+parquet
+      - CHROMA_PERSIST_DIRECTORY=/data
+    restart: unless-stopped
+    networks:
+      - fricadele_network
+
+  # Redis - Cache et session management
+  redis:
+    image: redis:7-alpine
+    container_name: fricadele_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - fricadele_network
+
+volumes:
+  chromadb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  fricadele_network:
+    driver: bridge

@@ -11,6 +11,7 @@ import {
   X,
   Wallet,
   Database,
+  Bot,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -28,11 +29,12 @@ const Navbar = () => {
     { name: 'Tableau de bord', href: '/dashboard', icon: Home },
     { name: 'Ajouter une dépense', href: '/add-expense', icon: PlusCircle },
     { name: 'Statistiques', href: '/statistics', icon: BarChart3 },
+    { name: 'Assistant IA', href: '/ai-assistant', icon: Bot },
     { name: 'Neo4j Récurrences', href: '/neo4j', icon: Database },
     { name: 'Paramètres', href: '/settings', icon: Settings },
   ];
 
-  const isActiveRoute = (href) => {
+  const isActiveRoute = (href: string) => {
     return location.pathname === href;
   };
 

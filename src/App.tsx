@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import Navbar from './components/layout/Navbar';
+import Sidebar from './components/layout/Sidebar';
+import FloatingAIButton from './components/FloatingAIButton';
 import Login from './components/auth/Login';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
@@ -19,9 +20,10 @@ import Neo4jRecurring from './components/Neo4jRecurring';
 // Layout component for authenticated pages
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <main>{children}</main>
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar />
+      <main className="flex-1 lg:ml-64 p-4 lg:p-6">{children}</main>
+      <FloatingAIButton />
     </div>
   );
 };

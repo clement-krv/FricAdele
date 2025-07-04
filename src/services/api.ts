@@ -282,3 +282,36 @@ export const neo4jAPI = {
     return response.data;
   },
 };
+
+// API Assistant IA
+export const aiAPI = {
+  // Poser une question à l'assistant
+  askQuestion: async (query: string, sessionId?: string) => {
+    const response = await axios.post('/ai/ask', { query, sessionId });
+    return response.data;
+  },
+
+  // Obtenir l'historique d'une session de chat
+  getChatHistory: async (sessionId: string, limit: number = 20) => {
+    const response = await axios.get(`/ai/history/${sessionId}?limit=${limit}`);
+    return response.data;
+  },
+
+  // Obtenir des suggestions de questions
+  getSuggestions: async () => {
+    const response = await axios.get('/ai/suggestions');
+    return response.data;
+  },
+
+  // Forcer la synchronisation des données
+  syncData: async () => {
+    const response = await axios.post('/ai/sync');
+    return response.data;
+  },
+
+  // Initialiser l'assistant (admin)
+  initialize: async () => {
+    const response = await axios.post('/ai/initialize');
+    return response.data;
+  },
+};

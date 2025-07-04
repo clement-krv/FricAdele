@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { expenseAPI } from '../services/api';
 import { formatCurrency } from '../utils/helpers';
 import toast from 'react-hot-toast';
+import type { PopulatedExpense } from '../types';
 import {
   Search,
   Filter,
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 
 const ExpenseList = () => {
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] = useState<PopulatedExpense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,7 +44,7 @@ const ExpenseList = () => {
     }
   };
 
-  const handleDelete = async (expenseId) => {
+  const handleDelete = async (expenseId: string) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette dépense ?')) {
       return;
     }
@@ -90,13 +91,15 @@ const ExpenseList = () => {
                 Gérez toutes vos dépenses en un seul endroit
               </p>
             </div>
-            <Link
-              to="/add-expense"
-              className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvelle dépense
-            </Link>
+            <div className="flex items-center space-x-3">
+              <Link
+                to="/add-expense"
+                className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nouvelle dépense
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -198,7 +201,7 @@ const ExpenseList = () => {
                           </div>
                           {expense.tags && expense.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-2">
-                              {expense.tags.map((tag, index) => (
+                              {expense.tags?.map((tag: any, index: number) => (
                                 <span
                                   key={index}
                                   className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
