@@ -1,78 +1,34 @@
 # FricAdele - Application de Gestion de Budget Personnel
 
-Une application web complète et responsive pour la gestion de budget personnel, développée avec React (frontend) et Node.js/Express (backend), utilisant MongoDB pour la persistance des données et Redis pour le cache des statistiques.
+Une application web complète et responsive pour la gestion de budget personnel, développée avec React (frontend) et Node.js/Express (backend), utilisant MongoDB pour la persistance des données, Redis pour le cache et **Neo4j pour l'analyse avancée des récurrences**.
 
-## � Table des Matières
+## 🚀 Fonctionnalités Principales
 
-- [🚀 Fonctionnalités](#-fonctionnalités)
-  - [🔐 Authentification](#-authentification)
-  - [💸 Gestion des Dépenses](#-gestion-des-dépenses)
-  - [📊 Statistiques](#-statistiques)
-  - [🎨 UX/UI Améliorée](#-uxui-améliorée)
-- [🏗️ Architecture Technique](#️-architecture-technique)
-  - [Frontend (React)](#frontend-react)
-  - [Backend (Node.js)](#backend-nodejs)
-  - [Base de Données](#base-de-données)
-- [🛡️ Validation et Feedback Utilisateur](#️-validation-et-feedback-utilisateur)
-  - [Validation Zod](#validation-zod-srcutilsvalidationjs)
-  - [Notifications Toast](#notifications-toast-react-hot-toast)
-  - [Composants avec Validation Intégrée](#composants-avec-validation-intégrée)
-- [🛠️ Installation et Configuration](#️-installation-et-configuration)
-  - [Prérequis](#prérequis)
-  - [Dépendances Principales](#dépendances-principales)
-  - [Configuration Backend](#2-configuration-du-backend)
-  - [Configuration Frontend](#3-configuration-du-frontend)
-- [🚀 Lancement de l'Application](#-lancement-de-lapplication)
-  - [Installation des Services](#installation-des-services-requis-windows)
-  - [Mode Développement](#mode-développement---méthode-recommandée)
-  - [Vérification](#vérification-du-fonctionnement)
-- [🛠️ Scripts Disponibles](#️-scripts-disponibles)
-- [🔧 Dépannage](#-dépannage)
-- [📊 API Endpoints](#-api-endpoints)
-- [🔧 Choix Techniques](#-choix-techniques-importants)
-- [🎯 Guide de Démarrage Rapide](#-guide-de-démarrage-rapide)
-- [📁 Structure du Projet](#-structure-du-projet)
-- [🎯 Fonctionnalités Avancées](#-fonctionnalités-avancées)
-- [👨‍💻 Auteur](#-auteur)
-- [📚 À Propos du Projet](#-à-propos-du-projet)
+### � Authentification Sécurisée
+- ✅ Création de compte avec validation en temps réel
+- ✅ Connexion/déconnexion avec JWT
+- ✅ Réinitialisation de mot de passe par email
+- ✅ Protection des routes et gestion des sessions
 
----
+### 💸 Gestion Complète des Dépenses
+- ✅ Ajouter/modifier/supprimer des dépenses avec validation
+- ✅ Catégories personnalisées avec couleurs
+- ✅ Système de tags flexible
+- ✅ Filtrage et recherche avancée
+- ✅ Interface responsive et intuitive
 
-## �🚀 Fonctionnalités
+### 📊 Statistiques et Analytics
+- ✅ Tableaux de bord avec graphiques interactifs
+- ✅ Répartition par catégories (camembert)
+- ✅ Évolution temporelle des dépenses (barres/lignes)
+- ✅ Comparaisons mensuelles et analyses de tendances
 
-### 🔐 Authentification
-- ✅ Création de compte avec validation en temps réel (nom, email, mot de passe sécurisé)
-- ✅ Connexion avec validation des champs obligatoires
-- ✅ Fonction "mot de passe oublié" avec envoi d'email sécurisé
-- ✅ Réinitialisation de mot de passe avec token et validation renforcée
-- ✅ Authentification JWT côté client avec feedback utilisateur
-- ✅ Protection des routes avec gestion des erreurs
-- ✅ Notifications toast pour tous les événements d'authentification
-
-### 💸 Gestion des Dépenses
-- ✅ Ajouter une dépense avec validation Zod (montant, description, date, catégorie, tags)
-- ✅ Validation en temps réel sur tous les formulaires avec messages d'erreur français
-- ✅ Modifier et supprimer ses dépenses avec confirmation et feedback
-- ✅ Gérer les catégories personnalisées (nom, couleur, description) avec validation
-- ✅ Ajouter et associer des tags avec validation en temps réel
-- ✅ Filtrage et recherche des dépenses
-- ✅ Notifications toast pour toutes les actions (ajout, modification, suppression)
-
-### 📊 Statistiques
-- ✅ Répartition mensuelle des dépenses par catégorie (diagramme camembert)
-- ✅ Évolution mensuelle des dépenses (diagramme en barres)
-- ✅ Mise en cache avec Redis pour améliorer les performances
-- ✅ Comparaison avec les mois précédents
-- ✅ Analyse détaillée par période
-
-### 🎨 UX/UI Améliorée
-- ✅ Interface optimisée pour mobile et desktop
-- ✅ Design moderne avec Tailwind CSS
-- ✅ Navigation intuitive avec feedback utilisateur
-- ✅ Validation en temps réel (onChange) sur tous les formulaires
-- ✅ Messages d'erreur contextuels en français sous chaque champ
-- ✅ Notifications toast pour toutes les actions importantes
-- ✅ Gestion cohérente des états de chargement et d'erreur
+### 🔗 **Analyse Neo4j - Nouvelle Fonctionnalité !**
+- ✅ **Import automatique des dépenses MongoDB vers Neo4j**
+- ✅ **Détection intelligente des dépenses récurrentes**
+- ✅ **Analyse des patterns de dépenses sur plusieurs mois**
+- ✅ **Interface dédiée pour l'analyse des récurrences**
+- ✅ **Visualisation des intervalles et fréquences**
 
 ## 🏗️ Architecture Technique
 
@@ -85,19 +41,22 @@ Une application web complète et responsive pour la gestion de budget personnel,
 - **Notifications**: React Hot Toast
 - **Charts**: Recharts
 - **HTTP Client**: Axios
-- **Icons**: Lucide React
+- **TypeScript**: Support complet avec types
 
 ### Backend (Node.js)
 - **Framework**: Express.js
 - **Database**: MongoDB avec Mongoose
+- **Graph Database**: **Neo4j pour l'analyse des récurrences**
 - **Cache**: Redis
-- **Authentication**: JWT
+- **Authentication**: JWT avec middleware de protection
 - **Security**: Helmet, CORS, Rate Limiting
-- **Validation**: Express Validator
+- **Validation**: Express Validator + Zod
 - **Email**: Nodemailer
 
 ### Base de Données
-- **Principale**: MongoDB
+- **Principale**: MongoDB (dépenses, utilisateurs, catégories)
+- **Cache**: Redis (statistiques, sessions)
+- **Graphe**: **Neo4j (analyse des récurrences et patterns)**
   - Collections: Users, Expenses, Categories, Tags
   - Index optimisés pour les requêtes
 - **Cache**: Redis
@@ -193,6 +152,11 @@ JWT_EXPIRE=7d
 # Redis
 REDIS_URL=redis://localhost:6379
 
+# Neo4j Configuration (Nouvelle fonctionnalité !)
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=passw0rd
+
 # Server
 PORT=3001
 NODE_ENV=development
@@ -249,6 +213,18 @@ VITE_APP_VERSION=1.0.0
    redis-server
    ```
 
+**Neo4j (Nouvelle base de données graphe)** :
+1. **Méthode Docker (Recommandée)** :
+   ```bash
+   docker run -d --name neo4j -p 7474:7474 -p 7687:7687 \
+   -e NEO4J_AUTH=neo4j/passw0rd neo4j:latest
+   ```
+2. **Méthode Neo4j Desktop** :
+   - Téléchargez Neo4j Desktop depuis https://neo4j.com/download/
+   - Créez une nouvelle base de données avec le mot de passe `passw0rd`
+   - Démarrez la base de données
+3. **Vérification** : http://localhost:7474 (interface web Neo4j)
+
 ### Mode Développement - Méthode Recommandée
 
 **Option 1 : Lancement simultané (recommandé)**
@@ -276,23 +252,25 @@ Le frontend sera accessible sur http://localhost:5173
 
 1. **API Health Check** : http://localhost:3001/health
 2. **Application** : http://localhost:5173
+3. **Neo4j Browser** : http://localhost:7474 (nouveau !)
 
 Si vous voyez des erreurs de connexion, vérifiez que :
 - MongoDB est démarré (`net start MongoDB`)
 - Redis est démarré (`redis-server`)
-- Les ports 3001 et 5173 ne sont pas utilisés par d'autres applications
+- **Neo4j est démarré (Docker ou Neo4j Desktop)**
+- Les ports 3001, 5173, 7474, et 7687 ne sont pas utilisés par d'autres applications
 
 ## 🛠️ Scripts Disponibles
 
 ### Frontend (racine du projet)
 - `npm run dev` - Lancement du serveur de développement Vite
-- `npm run build` - Build du projet
-- `npm run preview` - Aperçu du build
+- `npm run build` - Build du projet pour production
+- `npm run preview` - Aperçu du build de production
 - `npm run dev:all` - Lance backend + frontend simultanément
 
 ### Backend
 - `npm run dev` - Serveur de développement avec nodemon
-- `npm start` - Démarrer le serveur
+- `npm start` - Démarrer le serveur en production
 - `npm run dev:backend` - Alias pour npm run dev
 
 ## 🔧 Dépannage
@@ -311,9 +289,15 @@ Si vous voyez des erreurs de connexion, vérifiez que :
 - Démarrez Redis : `redis-server`
 - Vérifiez la connexion : `REDIS_URL=redis://localhost:6379`
 
+**Erreur Neo4j (Nouveau !)** :
+- Vérifiez que Neo4j est démarré (Docker ou Desktop)
+- Testez la connexion : http://localhost:7474
+- Vérifiez les credentials : `NEO4J_USER=neo4j` et `NEO4J_PASSWORD=passw0rd`
+
 **Port déjà utilisé** :
 - Backend (3001) : Changez `PORT=3001` dans backend/.env
 - Frontend (5173) : Vite choisira automatiquement un autre port
+- Neo4j (7474, 7687) : Modifiez les ports Docker ou Neo4j Desktop
 
 ## 📊 API Endpoints
 
@@ -348,6 +332,16 @@ Si vous voyez des erreurs de connexion, vérifiez que :
 - `GET /api/statistics/yearly` - Statistiques annuelles
 - `GET /api/statistics/categories` - Répartition par catégories
 - `GET /api/statistics/trends` - Tendances de dépenses
+
+### **Neo4j Analytics (Nouveaux endpoints !)** 🔗
+- `GET /api/neo4j/test` - Test de connexion Neo4j
+- `GET /api/neo4j/stats` - Statistiques générales Neo4j
+- `POST /api/neo4j/import` - 🔒 Importer les dépenses utilisateur vers Neo4j
+- `GET /api/neo4j/recurring` - 🔒 Détecter les dépenses récurrentes
+- `GET /api/neo4j/potential-recurring` - 🔒 Analyser les récurrences potentielles
+- `DELETE /api/neo4j/clear` - Nettoyer les données Neo4j (dev)
+
+🔒 = Authentification requise
 
 **Base URL** : http://localhost:3001 (en développement)
 
@@ -498,6 +492,48 @@ FricAdele/
 - **Gestion de Sessions** : Logout automatique en cas d'expiration de token
 - **Échappement XSS** : Protection contre les injections de scripts
 
+---
+
+## 🔗 Fonctionnalité Neo4j - Analyse des Récurrences
+
+### 🎯 Objectif
+L'intégration Neo4j permet d'analyser intelligemment les patterns de dépenses et détecter automatiquement les dépenses récurrentes (abonnements, loyers, etc.).
+
+### 🚀 Comment ça marche
+
+1. **Import des données** : Vos dépenses MongoDB sont importées dans Neo4j
+2. **Analyse des patterns** : Neo4j détecte les dépenses similaires (même description + montant)
+3. **Détection des récurrences** : Identification des intervalles réguliers (~30 jours ±7)
+4. **Visualisation** : Affichage des résultats avec détails (fréquence, montants, dates)
+
+### 📱 Utilisation de l'interface
+
+1. **Accédez à la page "Neo4j Récurrences"** dans le menu de navigation
+2. **Cliquez sur "Importer les données"** pour synchroniser vos dépenses
+3. **Sélectionnez la période d'analyse** (2, 3, 6 mois)
+4. **Cliquez sur "Analyser les récurrences"** pour démarrer l'analyse
+5. **Consultez les résultats** : récurrences détectées avec intervalles et totaux
+
+### 🔧 Architecture Neo4j
+
+```cypher
+// Exemple de structure des données
+(User)-[:MADE]->(Expense)
+
+// Requête d'exemple pour trouver les récurrences
+MATCH (u:User {id: $userId})-[:MADE]->(e:Expense)
+WHERE e.date >= date() - duration({months: 2})
+WITH e.description AS desc, e.amount AS amt, collect(e.date) AS dates
+WHERE size(dates) >= 2
+RETURN desc, amt, dates
+```
+
+### ⚡ Avantages de Neo4j
+- **Performance** : Requêtes graphe optimisées pour l'analyse de patterns
+- **Flexibilité** : Détection de relations complexes entre dépenses
+- **Scalabilité** : Gestion efficace de gros volumes de données
+- **Insights** : Découverte de patterns non visibles avec une base relationnelle
+
 **FricAdele** - Gérez votre budget personnel en toute simplicité ! 💰📊
 
 ---
@@ -522,5 +558,13 @@ FricAdele/
 Ce projet a été développé dans le cadre d'un exercice pédagogique à l'**ESGI de Nantes** pour les cours de :
 - **React.js** - Développement d'interfaces utilisateur modernes
 - **Base de données NoSQL** - Gestion des données avec MongoDB
+- **Bases de données graphe** - Analyse de patterns avec Neo4j
+- **Architecture microservices** - Intégration de multiples bases de données
 
-L'objectif était de créer une application complète de gestion de budget personnel en utilisant les technologies web modernes et les meilleures pratiques de développement.
+L'objectif était de créer une application complète de gestion de budget personnel en utilisant les technologies web modernes, les meilleures pratiques de développement, et d'explorer les possibilités des bases de données graphe pour l'analyse de données financières.
+
+### 🎓 Technologies apprises
+- **Frontend** : React 19, TypeScript, Tailwind CSS, Vite
+- **Backend** : Node.js, Express, JWT, middleware de sécurité
+- **Bases de données** : MongoDB (données transactionnelles), Neo4j (analyse graphe), Redis (cache)
+- **DevOps** : Docker, variables d'environnement, gestion multi-environnements
