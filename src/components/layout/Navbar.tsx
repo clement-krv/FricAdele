@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   Wallet,
+  Database,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -27,6 +28,7 @@ const Navbar = () => {
     { name: 'Tableau de bord', href: '/dashboard', icon: Home },
     { name: 'Ajouter une dépense', href: '/add-expense', icon: PlusCircle },
     { name: 'Statistiques', href: '/statistics', icon: BarChart3 },
+    { name: 'Neo4j Récurrences', href: '/neo4j', icon: Database },
     { name: 'Paramètres', href: '/settings', icon: Settings },
   ];
 

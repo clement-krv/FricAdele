@@ -13,6 +13,7 @@ const categoryRoutes = require('./routes/categories');
 const tagRoutes = require('./routes/tags');
 const statisticsRoutes = require('./routes/statistics');
 const recurringRoutes = require('./routes/recurring-simple');
+const neo4jRoutes = require('./routes/neo4j');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -100,6 +101,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/recurring', recurringRoutes);
+app.use('/api/neo4j', neo4jRoutes);
 
 // Catch all route for unmatched requests
 app.get('*', (req, res) => {

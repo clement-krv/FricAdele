@@ -240,3 +240,45 @@ export const authAPI = {
     return response.data;
   },
 };
+
+// ========================================
+// NEO4J SERVICES
+// ========================================
+
+export const neo4jAPI = {
+  // Test de connexion Neo4j
+  testConnection: async () => {
+    const response = await axios.get('/neo4j/test');
+    return response.data;
+  },
+
+  // Statistiques Neo4j
+  getStats: async () => {
+    const response = await axios.get('/neo4j/stats');
+    return response.data;
+  },
+
+  // Importer les dépenses de l'utilisateur vers Neo4j
+  importUserExpenses: async () => {
+    const response = await axios.post('/neo4j/import');
+    return response.data;
+  },
+
+  // Détecter les dépenses récurrentes (périodicité ~30 jours)
+  getRecurringExpenses: async (months: number = 2) => {
+    const response = await axios.get(`/neo4j/recurring?months=${months}`);
+    return response.data;
+  },
+
+  // Analyser les récurrences potentielles
+  getPotentialRecurrences: async (months: number = 6) => {
+    const response = await axios.get(`/neo4j/potential-recurring?months=${months}`);
+    return response.data;
+  },
+
+  // Nettoyer les données Neo4j (développement uniquement)
+  clearData: async () => {
+    const response = await axios.delete('/neo4j/clear');
+    return response.data;
+  },
+};

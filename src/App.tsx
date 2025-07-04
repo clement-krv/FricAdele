@@ -14,6 +14,7 @@ import Settings from './components/Settings';
 import ExpenseDetail from './components/ExpenseDetail';
 import EditExpense from './components/EditExpense';
 import ExpenseList from './components/ExpenseList';
+import Neo4jRecurring from './components/Neo4jRecurring';
 
 // Layout component for authenticated pages
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -147,6 +148,16 @@ const AppContent: React.FC = () => {
           <ProtectedRoute>
             <AppLayout>
               <Settings />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/neo4j"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Neo4jRecurring />
             </AppLayout>
           </ProtectedRoute>
         }
