@@ -10,10 +10,6 @@ const generateToken = (id) => {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
-
-// @desc    Register user
-// @route   POST /api/auth/register
-// @access  Public
 const register = async (req, res, next) => {
   try {
     console.log('📥 Requête d\'inscription reçue:', req.body);
@@ -65,9 +61,6 @@ const register = async (req, res, next) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
 const login = async (req, res, next) => {
   try {
     // Check validation errors
@@ -126,9 +119,6 @@ const login = async (req, res, next) => {
   }
 };
 
-// @desc    Get current user
-// @route   GET /api/auth/me
-// @access  Private
 const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
@@ -147,9 +137,6 @@ const getMe = async (req, res, next) => {
   }
 };
 
-// @desc    Forgot password
-// @route   POST /api/auth/forgot-password
-// @access  Public
 const forgotPassword = async (req, res, next) => {
   try {
     // Check validation errors
@@ -218,9 +205,6 @@ const forgotPassword = async (req, res, next) => {
   }
 };
 
-// @desc    Reset password
-// @route   PUT /api/auth/reset-password
-// @access  Public
 const resetPassword = async (req, res, next) => {
   try {
     // Check validation errors
@@ -277,9 +261,6 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
-// @desc    Update user profile
-// @route   PUT /api/auth/profile
-// @access  Private
 const updateProfile = async (req, res, next) => {
   try {
     const { name, email } = req.body;
