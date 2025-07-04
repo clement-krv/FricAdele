@@ -1,10 +1,24 @@
-# FricAdele - Application de Gestion de Budget Personnel
+# FricAdele - Application de Gestion de Budget Personnel avec Assistant IA
 
-Une application web complète et responsive pour la gestion de budget personnel, développée avec React (frontend) et Node.js/Express (backend), utilisant MongoDB pour la persistance des données et Redis pour le cache des statistiques.
+Une application web complète et responsive pour la gestion de budget personnel, développée avec React (frontend) et Node.js/Express (backend), utilisant MongoDB pour la persistance des données, Redis pour le cache, et intégrant un assistant IA intelligent powered by Mistral AI.
 
-## � Table des Matières
+## 🎯 Nouveautés - Assistant IA FricAdele
+
+### 🤖 Assistant Personnel Intelligent
+- ✅ **Conseiller IA avancé** utilisant Mistral AI pour des conseils pFricAdele/
+├── docker-compose.ai.yml     # 🤖 Services IA (ChromaDB + Redis)
+├── backend/                  # API Node.js/Expresssonnalisés
+- ✅ **Analyse de vos vraies données** : L'IA accède à vos dépenses réelles pour des réponses adaptées
+- ✅ **Interface moderne** : Bouton flottant + modal de chat responsive et intuitive
+- ✅ **Conversations persistantes** : Sauvegarde automatique dans localStorage
+- ✅ **Formatage avancé** : Messages stylisés avec listes, titres, et mise en forme
+- ✅ **Base de données vectorielle** : ChromaDB pour des recherches sémantiques intelligentes
+- ✅ **Cache intelligent** : Redis pour des réponses rapides et optimisées
+
+## 📋 Table des Matières
 
 - [🚀 Fonctionnalités](#-fonctionnalités)
+  - [🤖 Assistant IA](#-assistant-ia)
   - [🔐 Authentification](#-authentification)
   - [💸 Gestion des Dépenses](#-gestion-des-dépenses)
   - [📊 Statistiques](#-statistiques)
@@ -38,7 +52,18 @@ Une application web complète et responsive pour la gestion de budget personnel,
 
 ---
 
-## �🚀 Fonctionnalités
+## 🚀 Fonctionnalités
+
+### 🤖 Assistant IA
+- ✅ **Assistant personnel intelligent** avec Mistral AI pour conseils budget personnalisés
+- ✅ **Analyse en temps réel** de vos dépenses et habitudes financières
+- ✅ **Interface conversationnelle** avec bouton flottant et modal responsive
+- ✅ **Réponses contextuelles** basées sur vos vraies données (MongoDB + Neo4j)
+- ✅ **Persistance des conversations** avec sauvegarde automatique localStorage
+- ✅ **Formatage intelligent** des réponses (listes, titres, mise en forme)
+- ✅ **Base vectorielle ChromaDB** pour recherches sémantiques avancées
+- ✅ **Cache Redis** pour performances optimales
+- ✅ **Questions intelligentes** : "Quelles sont mes dépenses récurrentes ?", "Comment optimiser mon budget ?", etc.
 
 ### 🔐 Authentification
 - ✅ Création de compte avec validation en temps réel (nom, email, mot de passe sécurisé)
@@ -80,12 +105,13 @@ Une application web complète et responsive pour la gestion de budget personnel,
 - **Framework**: React 19 avec Vite
 - **Styling**: Tailwind CSS 4
 - **Routing**: React Router DOM
-- **State Management**: Context API
+- **State Management**: Context API + localStorage
 - **Validation**: Zod avec validation en temps réel
 - **Notifications**: React Hot Toast
 - **Charts**: Recharts
 - **HTTP Client**: Axios
 - **Icons**: Lucide React
+- **IA Chat Interface**: Modal responsive avec formatage Markdown
 
 ### Backend (Node.js)
 - **Framework**: Express.js
@@ -95,6 +121,16 @@ Une application web complète et responsive pour la gestion de budget personnel,
 - **Security**: Helmet, CORS, Rate Limiting
 - **Validation**: Express Validator
 - **Email**: Nodemailer
+- **IA Services**: Mistral AI API integration
+- **Vector Database**: ChromaDB avec embeddings
+- **Graph Database**: Neo4j (pour les relations complexes)
+
+### Infrastructure IA
+- **LLM**: Mistral AI (mistral-small-latest)
+- **Vector Store**: ChromaDB avec embeddings par défaut
+- **Cache IA**: Redis pour sessions et réponses
+- **Data Pipeline**: Synchronisation automatique MongoDB → ChromaDB
+- **Context Enrichment**: Analyse des données utilisateur en temps réel
 
 ### Base de Données
 - **Principale**: MongoDB
@@ -102,7 +138,14 @@ Une application web complète et responsive pour la gestion de budget personnel,
   - Index optimisés pour les requêtes
 - **Cache**: Redis
   - Cache des statistiques calculées
+  - Sessions de chat IA
   - TTL configurable par type de données
+- **Vectorielle**: ChromaDB
+  - Stockage des embeddings des dépenses utilisateur
+  - Recherche sémantique pour l'IA
+- **Graph**: Neo4j
+  - Relations complexes entre dépenses
+  - Patterns de dépenses récurrentes
 
 ## 🛡️ Validation et Feedback Utilisateur
 
@@ -164,6 +207,9 @@ Une application web complète et responsive pour la gestion de budget personnel,
 - `express-validator` - Validation serveur
 - `helmet` - Sécurité HTTP
 - `cors` - Configuration CORS
+- `chromadb` - Base de données vectorielle
+- `@chroma-core/default-embed` - Embeddings par défaut
+- `node-fetch` - Appels API Mistral AI
 
 ### 1. Cloner le Repository
 ```bash
@@ -207,6 +253,12 @@ FROM_NAME=FricAdele
 
 # Security
 BCRYPT_ROUNDS=12
+
+# IA Assistant
+MISTRAL_API_KEY=your_mistral_api_key_here
+CHROMA_URL=http://localhost:8000
+REDIS_AI_URL=redis://localhost:6379
+```
 RATE_LIMIT_WINDOWMS=900000
 RATE_LIMIT_MAX=100
 ```
@@ -249,6 +301,20 @@ VITE_APP_VERSION=1.0.0
    redis-server
    ```
 
+**Services IA (ChromaDB + Redis) - Docker Compose** :
+```bash
+# Dans le répertoire racine du projet
+docker-compose -f docker-compose.ai.yml up -d
+```
+Cela démarre :
+- ChromaDB sur le port 8000
+- Redis (pour l'IA) sur le port 6379
+
+**Clé API Mistral** :
+1. Créez un compte sur https://mistral.ai/
+2. Générez une clé API
+3. Ajoutez-la dans votre `.env` : `MISTRAL_API_KEY=your_key_here`
+
 ### Mode Développement - Méthode Recommandée
 
 **Option 1 : Lancement simultané (recommandé)**
@@ -259,14 +325,19 @@ Cette commande lance automatiquement le backend (port 3001) et le frontend (port
 
 **Option 2 : Lancement séparé**
 
-1. **Démarrer le Backend** :
+1. **Démarrer les services IA** :
+```bash
+docker-compose -f docker-compose.ai.yml up -d
+```
+
+2. **Démarrer le Backend** :
 ```bash
 cd backend
 npm run dev
 ```
 Le backend sera accessible sur http://localhost:3001
 
-2. **Démarrer le Frontend** (dans un autre terminal) :
+3. **Démarrer le Frontend** (dans un autre terminal) :
 ```bash
 npm run dev
 ```
@@ -349,6 +420,11 @@ Si vous voyez des erreurs de connexion, vérifiez que :
 - `GET /api/statistics/categories` - Répartition par catégories
 - `GET /api/statistics/trends` - Tendances de dépenses
 
+### IA Assistant
+- `POST /api/ai/ask` - Poser une question à l'assistant IA
+- `POST /api/ai/sync` - Synchroniser les données utilisateur avec ChromaDB
+- `GET /api/ai/health` - Vérifier le statut des services IA
+
 **Base URL** : http://localhost:3001 (en développement)
 
 ## 🔧 Choix Techniques Importants
@@ -357,11 +433,21 @@ Si vous voyez des erreurs de connexion, vérifiez que :
 - **Séparation Frontend/Backend** : Architecture découplée pour une meilleure scalabilité
 - **API RESTful** : Interface standardisée et documentée
 - **Authentication JWT** : Système d'authentification stateless et sécurisé
+- **Architecture IA modulaire** : Services IA découplés avec fallbacks robustes
 
 ### Performance
 - **Cache Redis** : Mise en cache des statistiques calculées pour réduire la charge sur MongoDB
+- **Cache IA** : Sessions de chat et réponses fréquentes en cache
 - **Index MongoDB** : Index optimisés sur les champs de requête fréquents
 - **Pagination** : Limitation des résultats pour les listes importantes
+- **ChromaDB** : Recherche vectorielle ultra-rapide pour l'IA
+
+### Intelligence Artificielle
+- **Mistral AI** : LLM de pointe pour des conseils personnalisés
+- **Embeddings automatiques** : Vectorisation des données utilisateur
+- **Recherche sémantique** : ChromaDB pour des réponses contextuelles
+- **Fallback MongoDB** : Accès direct aux données si ChromaDB indisponible
+- **Cache intelligent** : Redis pour optimiser les performances IA
 
 ### Sécurité
 - **Hashing Bcrypt** : Chiffrement sécurisé des mots de passe
@@ -435,7 +521,8 @@ FricAdele/
 │   │   ├── expenseController.js # CRUD dépenses
 │   │   ├── categoryController.js # CRUD catégories
 │   │   ├── tagController.js   # CRUD tags
-│   │   └── statisticsController.js # Calculs statistiques
+│   │   ├── statisticsController.js # Calculs statistiques
+│   │   └── aiController.js    # 🤖 Contrôleur IA Assistant
 │   ├── middleware/            # Middlewares personnalisés
 │   │   ├── auth.js           # Vérification JWT
 │   │   └── errorHandler.js   # Gestion d'erreurs globale
@@ -445,6 +532,10 @@ FricAdele/
 │   │   ├── Category.js       # Catégorie personnalisée
 │   │   └── Tag.js            # Tag pour classification
 │   ├── routes/               # Routes API REST
+│   │   └── ai.js             # 🤖 Routes Assistant IA
+│   ├── services/             # Services backend
+│   │   ├── aiService.js      # 🤖 Service principal IA
+│   │   └── chromaService.js  # 🤖 Service ChromaDB
 │   └── utils/                # Utilitaires (Redis, email)
 ├── src/                      # Frontend React
 │   ├── components/           # Composants React
@@ -453,7 +544,10 @@ FricAdele/
 │   │   │   ├── ForgotPassword.jsx # Mot de passe oublié
 │   │   │   └── ResetPassword.jsx  # Réinitialisation
 │   │   ├── layout/           # Layout et navigation
-│   │   │   └── Navbar.jsx    # Barre de navigation
+│   │   │   ├── Navbar.jsx    # Barre de navigation (legacy)
+│   │   │   └── Sidebar.jsx   # 🆕 Sidebar responsive moderne
+│   │   ├── AIAssistant.jsx   # 🤖 Composant chat IA
+│   │   └── FloatingAIButton.jsx # 🤖 Bouton flottant + modal
 │   │   ├── AddExpense.jsx    # Ajout dépense (validation Zod + toasts)
 │   │   ├── EditExpense.jsx   # Modification dépense
 │   │   ├── ExpenseDetail.jsx # Détail dépense + suppression
@@ -473,6 +567,37 @@ FricAdele/
 ```
 
 ## 🎯 Fonctionnalités Avancées
+
+### 🤖 Assistant IA - Guide d'Utilisation
+
+#### Accès à l'Assistant
+- **Bouton flottant** : Cliquez sur l'icône IA en bas à droite de l'écran
+- **Modal responsive** : Interface de chat moderne et intuitive
+- **Persistance** : Vos conversations sont sauvegardées automatiquement
+
+#### Questions Suggérées
+```
+"Quelles sont mes dépenses récurrentes ?"
+"Sur quoi je dépense le plus ?"
+"Comment optimiser mon budget alimentaire ?"
+"Analyse mes habitudes de dépenses"
+"Donne-moi des conseils pour économiser"
+```
+
+#### Fonctionnalités IA
+- **Analyse personnalisée** : L'IA accède à vos vraies données de dépenses
+- **Conseils adaptés** : Recommandations basées sur vos patterns financiers
+- **Réponses formatées** : Listes, titres, et mise en forme automatique
+- **Historique persistant** : Reprenez vos conversations où vous les avez laissées
+- **Bouton effacer** : Recommencez une nouvelle conversation à tout moment
+
+#### Architecture IA
+```
+Interface React → API Express → Mistral AI
+                             ↘ ChromaDB (recherche sémantique)
+                             ↘ MongoDB (données utilisateur)
+                             ↘ Redis (cache & sessions)
+```
 
 ### Validation en Temps Réel
 - **onChange Validation** : Validation instantanée à chaque frappe
