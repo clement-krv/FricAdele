@@ -22,7 +22,7 @@ const FloatingAIButton = () => {
 
       {/* Modal de chat */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[500px] bg-white rounded-lg shadow-2xl border border-gray-200 z-50 flex flex-col">
+        <div className="fixed bottom-6 right-6 w-96 h-[calc(100vh-100px)] max-h-[700px] bg-white rounded-lg shadow-2xl border border-gray-200 z-50 flex flex-col">
           {/* Header de la modal */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">

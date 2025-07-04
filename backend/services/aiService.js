@@ -32,31 +32,45 @@ class AIAssistantService {
         sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       }
 
-      // 1. Récupérer les données utilisateur pertinentes
-      const userInfo = await chromaService.queryUserData(userId, query, 5);
+      // 1. Récupérer l'historique de chat récent
+      const chatHistory = await this.getChatHistory(userId, sessionId, 5);
       
-      // 2. Récupérer les conseils généraux pertinents
-      const tips = await chromaService.queryTips(query, 3);
+      // 2. Rechercher les données utilisateur pertinentes dans ChromaDB
+      let userInfo = { documents: [], metadatas: [] };
+      try {
+        userInfo = await chromaService.searchUserData(userId, query, 5);
+      } catch (error) {
+        console.warn('ChromaDB search failed, continuing without user data:', error.message);
+      }
       
-      // 3. Récupérer l'historique de conversation récent
-      const chatHistory = await this.getChatHistory(userId, sessionId, 6);
+      // 3. Rechercher des conseils généraux pertinents
+      let tips = { documents: [], metadatas: [] };
+      try {
+        tips = await chromaService.searchTips(query, 3);
+      } catch (error) {
+        console.warn('ChromaDB tips search failed, continuing without tips:', error.message);
+      }
       
-      // 4. Construire le prompt
-      const prompt = await this.buildPrompt(query, userInfo, tips, chatHistory);
+      // 4. Construire le prompt avec toutes les informations
+      const prompt = await this.buildPrompt(query, userInfo, tips, chatHistory, userId);
       
       // 5. Envoyer à Mistral AI
       const response = await this.callMistralAPI(prompt);
       
       // 6. Sauvegarder la conversation
-      await this.saveChatMessage(userId, sessionId, 'user', query);
-      await this.saveChatMessage(userId, sessionId, 'assistant', response);
+      try {
+        await this.saveChatMessage(userId, sessionId, 'user', query);
+        await this.saveChatMessage(userId, sessionId, 'assistant', response);
+      } catch (error) {
+        console.warn('Failed to save chat message:', error.message);
+      }
       
       return {
         response,
         sessionId,
         sources: {
-          userDataCount: userInfo.documents?.flat().length || 0,
-          tipsCount: tips.documents?.flat().length || 0
+          userDataCount: userInfo.documents?.length || 0,
+          tipsCount: tips.documents?.length || 0
         }
       };
     } catch (error) {
@@ -66,8 +80,18 @@ class AIAssistantService {
   }
 
   // Construire le prompt pour Mistral
-  async buildPrompt(query, userInfo, tips, chatHistory) {
-    const contextUser = userInfo.documents?.flat().join('\n') || 'Aucune donnée utilisateur disponible.';
+  async buildPrompt(query, userInfo, tips, chatHistory, userId = null) {
+    let contextUser = userInfo.documents?.flat().join('\n') || '';
+    
+    // Si pas de données via ChromaDB, essayer de récupérer directement
+    if (!contextUser && userId) {
+      contextUser = await this.getDirectUserData(userId);
+    }
+    
+    if (!contextUser) {
+      contextUser = 'Aucune donnée utilisateur disponible.';
+    }
+    
     const contextTips = tips.documents?.flat().join('\n') || 'Aucun conseil disponible.';
     
     let conversationContext = '';
@@ -228,10 +252,73 @@ Instructions importantes :
         "Crée des catégories de dépenses personnalisées qui correspondent à ton mode de vie pour mieux visualiser tes postes de dépenses."
       ];
 
-      await chromaService.addTips(tips);
-      console.log('Tips initialized successfully');
+      try {
+        await chromaService.addTips(tips);
+        console.log('Tips initialized successfully in ChromaDB');
+      } catch (error) {
+        console.warn('ChromaDB tips initialization failed, but this is not critical:', error.message);
+        // On continue sans ChromaDB pour les tips
+      }
     } catch (error) {
       console.error('Error initializing tips:', error);
+      throw error;
+    }
+  }
+
+  // Récupérer les données utilisateur directement depuis MongoDB
+  async getDirectUserData(userId, limit = 20) {
+    try {
+      const Expense = require('../models/Expense');
+      const Category = require('../models/Category');
+      
+      // Récupérer les dépenses récentes
+      const expenses = await Expense.find({ user: userId })
+        .populate('category')
+        .populate('tags')
+        .sort({ date: -1 })
+        .limit(limit);
+
+      if (expenses.length === 0) {
+        return 'Aucune dépense enregistrée pour cet utilisateur.';
+      }
+
+      // Calculer des statistiques de base
+      const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+      const avgAmount = totalAmount / expenses.length;
+      
+      // Grouper par catégorie
+      const categoryStats = {};
+      expenses.forEach(expense => {
+        const catName = expense.category ? expense.category.name : 'Sans catégorie';
+        if (!categoryStats[catName]) {
+          categoryStats[catName] = { count: 0, total: 0 };
+        }
+        categoryStats[catName].count++;
+        categoryStats[catName].total += expense.amount;
+      });
+
+      // Créer un résumé textuel
+      const summary = `
+Résumé financier de l'utilisateur (dernières ${expenses.length} dépenses) :
+- Total dépensé : ${totalAmount.toFixed(2)}€
+- Dépense moyenne : ${avgAmount.toFixed(2)}€
+- Période : du ${expenses[expenses.length - 1].date.toLocaleDateString()} au ${expenses[0].date.toLocaleDateString()}
+
+Répartition par catégorie :
+${Object.entries(categoryStats)
+  .sort((a, b) => b[1].total - a[1].total)
+  .map(([cat, stats]) => `- ${cat} : ${stats.total.toFixed(2)}€ (${stats.count} transaction${stats.count > 1 ? 's' : ''})`)
+  .join('\n')}
+
+Dernières dépenses :
+${expenses.slice(0, 10).map(exp => 
+  `- ${exp.date.toLocaleDateString()} : ${exp.description || 'Dépense'} (${exp.category?.name || 'Sans catégorie'}) : ${exp.amount.toFixed(2)}€`
+).join('\n')}`;
+
+      return summary;
+    } catch (error) {
+      console.error('Error getting direct user data:', error);
+      return 'Impossible de récupérer les données utilisateur.';
     }
   }
 }

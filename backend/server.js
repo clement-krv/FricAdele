@@ -94,8 +94,8 @@ const aiService = require('./services/aiService');
 chromaService.initialize()
   .then(() => {
     console.log('✅ ChromaDB initialisé');
-    // Initialiser les conseils généraux si nécessaire
-    return aiService.initializeTips();
+    // Commenté temporairement à cause du problème d'embedding
+    // return aiService.initializeTips();
   })
   .then(() => {
     console.log('✅ Conseils IA initialisés');

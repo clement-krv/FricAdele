@@ -1,4 +1,5 @@
 const { ChromaClient } = require('chromadb');
+const { DefaultEmbeddingFunction } = require('@chroma-core/default-embed');
 const { v4: uuidv4 } = require('uuid');
 
 class ChromaDBService {
@@ -8,6 +9,7 @@ class ChromaDBService {
     this.tipsCollection = null;
     this.chatHistoryCollection = null;
     this.isInitialized = false;
+    this.embeddingFunction = new DefaultEmbeddingFunction();
   }
 
   async initialize() {
@@ -16,23 +18,41 @@ class ChromaDBService {
         path: process.env.CHROMADB_URL || 'http://localhost:8000' 
       });
 
-      // Créer ou récupérer les collections
+      // Créer ou récupérer les collections avec la fonction d'embedding
       try {
-        this.userInfoCollection = await this.client.getCollection({ name: 'budget_user_info' });
+        this.userInfoCollection = await this.client.getCollection({ 
+          name: 'budget_user_info',
+          embeddingFunction: this.embeddingFunction
+        });
       } catch (error) {
-        this.userInfoCollection = await this.client.createCollection({ name: 'budget_user_info' });
+        this.userInfoCollection = await this.client.createCollection({ 
+          name: 'budget_user_info',
+          embeddingFunction: this.embeddingFunction
+        });
       }
 
       try {
-        this.tipsCollection = await this.client.getCollection({ name: 'budget_tips' });
+        this.tipsCollection = await this.client.getCollection({ 
+          name: 'budget_tips',
+          embeddingFunction: this.embeddingFunction
+        });
       } catch (error) {
-        this.tipsCollection = await this.client.createCollection({ name: 'budget_tips' });
+        this.tipsCollection = await this.client.createCollection({ 
+          name: 'budget_tips',
+          embeddingFunction: this.embeddingFunction
+        });
       }
 
       try {
-        this.chatHistoryCollection = await this.client.getCollection({ name: 'chat_history' });
+        this.chatHistoryCollection = await this.client.getCollection({ 
+          name: 'chat_history',
+          embeddingFunction: this.embeddingFunction
+        });
       } catch (error) {
-        this.chatHistoryCollection = await this.client.createCollection({ name: 'chat_history' });
+        this.chatHistoryCollection = await this.client.createCollection({ 
+          name: 'chat_history',
+          embeddingFunction: this.embeddingFunction
+        });
       }
 
       this.isInitialized = true;
