@@ -12,10 +12,68 @@ const User = require('../models/User');
 const Expense = require('../models/Expense');
 const Category = require('../models/Category');
 const Tag = require('../models/Tag');
+const neo4j = require('neo4j-driver');
 require('dotenv').config();
+
+// Fonction pour nettoyer Neo4j
+const clearNeo4j = async () => {
+  let driver = null;
+  try {
+    console.log('🔄 Connexion à Neo4j...');
+    
+    // Connexion à Neo4j avec les mêmes paramètres que le service
+    driver = neo4j.driver(
+      'bolt://localhost:7687',
+      neo4j.auth.basic('neo4j', 'passw0rd')
+    );
+    
+    const session = driver.session();
+    
+    // Compter les nœuds avant suppression
+    const countResult = await session.run('MATCH (n) RETURN count(n) as count');
+    const nodeCount = countResult.records[0].get('count').toNumber();
+    
+    console.log(`📊 Nœuds Neo4j trouvés: ${nodeCount}`);
+    
+    if (nodeCount === 0) {
+      console.log('ℹ️  Base Neo4j déjà vide.');
+      await session.close();
+      return;
+    }
+    
+    console.log('🗑️  Suppression de tous les nœuds et relations Neo4j...');
+    
+    // Supprimer toutes les relations d'abord
+    await session.run('MATCH ()-[r]-() DELETE r');
+    console.log('✅ Relations Neo4j supprimées');
+    
+    // Puis supprimer tous les nœuds
+    const deleteResult = await session.run('MATCH (n) DELETE n');
+    console.log('✅ Nœuds Neo4j supprimés');
+    
+    // Vérifier que tout est supprimé
+    const finalCountResult = await session.run('MATCH (n) RETURN count(n) as count');
+    const finalCount = finalCountResult.records[0].get('count').toNumber();
+    
+    console.log(`✅ Neo4j nettoyé avec succès! Nœuds restants: ${finalCount}`);
+    
+    await session.close();
+    
+  } catch (error) {
+    console.error('❌ Erreur lors du nettoyage Neo4j:', error.message);
+    console.log('⚠️  Continuons avec le nettoyage MongoDB...');
+  } finally {
+    if (driver) {
+      await driver.close();
+    }
+  }
+};
 
 const clearAllUsers = async () => {
   try {
+    // D'abord nettoyer Neo4j
+    await clearNeo4j();
+    
     console.log('🔄 Connexion à MongoDB...');
     
     // Connexion à MongoDB
@@ -62,7 +120,8 @@ const clearAllUsers = async () => {
     const deletedUsers = await User.deleteMany({});
     console.log(`✅ ${deletedUsers.deletedCount} utilisateurs supprimés`);
 
-    console.log('\n🎉 Base de données vidée avec succès !');
+    console.log('\n🎉 Bases de données vidées avec succès !');
+    console.log('📝 MongoDB et Neo4j ont été nettoyés.');
     console.log('📝 Vous pouvez maintenant créer de nouveaux utilisateurs.');
 
   } catch (error) {
@@ -79,6 +138,9 @@ const clearAllUsers = async () => {
 // Fonction pour supprimer uniquement les utilisateurs (garde les données non liées)
 const clearUsersOnly = async () => {
   try {
+    // Nettoyer Neo4j même en mode "users only"
+    await clearNeo4j();
+    
     console.log('🔄 Connexion à MongoDB...');
     
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/budget_manager');
@@ -96,7 +158,8 @@ const clearUsersOnly = async () => {
     const deletedUsers = await User.deleteMany({});
     console.log(`✅ ${deletedUsers.deletedCount} utilisateurs supprimés`);
 
-    console.log('⚠️  Note: Les dépenses, catégories et tags orphelins restent dans la base.');
+    console.log('⚠️  Note: Les dépenses, catégories et tags orphelins restent dans MongoDB.');
+    console.log('⚠️  Mais Neo4j a été complètement nettoyé.');
     console.log('   Utilisez clearAllUsers() pour tout supprimer.');
 
   } catch (error) {

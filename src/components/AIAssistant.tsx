@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { aiAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import {
   Send,
@@ -15,15 +16,16 @@ interface AIAssistantProps {
 }
 
 const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Clés pour localStorage
-  const MESSAGES_STORAGE_KEY = 'ai_assistant_messages';
-  const SESSION_STORAGE_KEY = 'ai_assistant_session_id';
+  // Clés pour localStorage spécifiques à l'utilisateur
+  const MESSAGES_STORAGE_KEY = `ai_assistant_messages_${user?.id || 'anonymous'}`;
+  const SESSION_STORAGE_KEY = `ai_assistant_session_id_${user?.id || 'anonymous'}`;
 
   // Sauvegarder les messages dans localStorage
   const saveMessagesToStorage = (messages: ChatMessage[]) => {
@@ -71,24 +73,27 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
     try {
       localStorage.removeItem(MESSAGES_STORAGE_KEY);
       localStorage.removeItem(SESSION_STORAGE_KEY);
+      toast.success('Conversation effacée');
     } catch (error) {
       console.error('Error clearing conversation from localStorage:', error);
     }
   };
 
   useEffect(() => {
-    // Charger la conversation précédente au démarrage
-    const savedMessages = loadMessagesFromStorage();
-    const savedSessionId = loadSessionIdFromStorage();
-    
-    if (savedMessages.length > 0) {
+    // Réinitialiser quand l'utilisateur change
+    if (user?.id) {
+      // Charger la conversation de l'utilisateur connecté
+      const savedMessages = loadMessagesFromStorage();
+      const savedSessionId = loadSessionIdFromStorage();
+      
       setMessages(savedMessages);
-    }
-    
-    if (savedSessionId) {
       setSessionId(savedSessionId);
+    } else {
+      // Si pas d'utilisateur connecté, vider la conversation
+      setMessages([]);
+      setSessionId(null);
     }
-  }, []);
+  }, [user?.id]); // Déclenché quand l'ID utilisateur change
 
   useEffect(() => {
     scrollToBottom();
@@ -100,6 +105,12 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
 
   const handleSendMessage = async (message: string = currentMessage) => {
     if (!message.trim() || isLoading) return;
+
+    // Vérifier que l'utilisateur est connecté
+    if (!user?.id) {
+      toast.error('Vous devez être connecté pour utiliser l\'assistant IA');
+      return;
+    }
 
     const userMessage: ChatMessage = {
       role: 'user',
