@@ -1,5 +1,6 @@
 const aiService = require('../services/aiService');
 const chromaService = require('../services/chromaService');
+const aiLimitService = require('../services/aiLimitService');
 const Expense = require('../models/Expense');
 const Category = require('../models/Category');
 
@@ -17,15 +18,43 @@ const aiController = {
         });
       }
 
+      // Vérifier la limite d'usage
+      const limitStatus = await aiLimitService.canSendMessage(userId);
+      
+      if (!limitStatus.canSend) {
+        return res.status(429).json({
+          success: false,
+          error: 'Limite quotidienne atteinte',
+          message: `Vous avez atteint votre limite quotidienne de ${limitStatus.limit} messages. Réessayez demain.`,
+          limitInfo: {
+            currentCount: limitStatus.currentCount,
+            limit: limitStatus.limit,
+            resetTime: limitStatus.resetTime
+          }
+        });
+      }
+
       // Synchroniser les données utilisateur avant de traiter la question
       await aiController.syncUserData(userId);
 
       // Traiter la question
       const result = await aiService.processQuery(userId, query, sessionId);
 
+      // Incrémenter le compteur après succès
+      await aiLimitService.incrementMessageCount(userId);
+
+      // Récupérer les nouvelles stats
+      const usageStats = await aiLimitService.getUsageStats(userId);
+
       res.json({
         success: true,
-        data: result
+        data: result,
+        usageInfo: {
+          remaining: usageStats.remaining,
+          total: usageStats.limit,
+          isNearLimit: usageStats.isNearLimit,
+          percentageUsed: usageStats.percentageUsed
+        }
       });
     } catch (error) {
       console.error('Error in askAssistant:', error);
@@ -164,6 +193,32 @@ const aiController = {
       res.status(500).json({
         success: false,
         message: 'Erreur lors de la synchronisation des données'
+      });
+    }
+  },
+
+  // Nouvelle méthode pour récupérer les stats d'usage
+  async getUsageStats(req, res) {
+    try {
+      const userId = req.user.id;
+      const stats = await aiLimitService.getUsageStats(userId);
+      
+      if (!stats) {
+        return res.status(500).json({ 
+          success: false,
+          error: 'Erreur récupération statistiques' 
+        });
+      }
+
+      res.json({
+        success: true,
+        data: stats
+      });
+    } catch (error) {
+      console.error('Erreur stats IA:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Erreur interne du serveur' 
       });
     }
   }

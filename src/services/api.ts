@@ -309,6 +309,12 @@ export const aiAPI = {
     return response.data;
   },
 
+  // Récupérer les statistiques d'usage IA
+  getUsageStats: async () => {
+    const response = await axios.get('/ai/usage-stats');
+    return response.data;
+  },
+
   // Initialiser l'assistant (admin)
   initialize: async () => {
     const response = await axios.post('/ai/initialize');
