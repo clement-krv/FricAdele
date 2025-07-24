@@ -32,6 +32,20 @@ services:
     networks:
       - fricadele_network
 
+  # MongoDB - Base de données principale
+  mongodb:
+    image: mongo:7
+    container_name: fricadele_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=fricadele_dev
+    restart: unless-stopped
+    networks:
+      - fricadele_network
+
   # Neo4j - Base de données graphe pour relations complexes
   neo4j:
     image: neo4j:5
@@ -57,6 +71,8 @@ volumes:
   chromadb_data:
     driver: local
   redis_data:
+    driver: local
+  mongodb_data:
     driver: local
   neo4j_data:
     driver: local

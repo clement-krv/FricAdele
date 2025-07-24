@@ -77,7 +77,7 @@ const clearAllUsers = async () => {
     console.log('🔄 Connexion à MongoDB...');
     
     // Connexion à MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/budget_manager');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fricadele_dev');
     console.log('✅ Connecté à MongoDB');
 
     // Compter le nombre d'utilisateurs avant suppression
@@ -143,7 +143,7 @@ const clearUsersOnly = async () => {
     
     console.log('🔄 Connexion à MongoDB...');
     
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/budget_manager');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fricadele_dev');
     console.log('✅ Connecté à MongoDB');
 
     const userCount = await User.countDocuments();
