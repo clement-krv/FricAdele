@@ -18,6 +18,9 @@ router.get('/suggestions', aiController.getSuggestions);
 // POST /api/ai/sync - Forcer la synchronisation des données
 router.post('/sync', aiController.forceSyncData);
 
+// GET /api/ai/usage-stats - Récupérer les statistiques d'usage
+router.get('/usage-stats', aiController.getUsageStats);
+
 // POST /api/ai/initialize - Initialiser l'assistant (admin only)
 router.post('/initialize', aiController.initializeAssistant);
 

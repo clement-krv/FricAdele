@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { aiAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import AIUsageIndicator from './AIUsageIndicator';
 import {
   Send,
   Bot,
@@ -21,6 +22,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [usageStats, setUsageStats] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Clés pour localStorage spécifiques à l'utilisateur
@@ -56,6 +58,18 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
     }
   };
 
+  // Charger les statistiques d'usage
+  const loadUsageStats = async () => {
+    try {
+      const response = await aiAPI.getUsageStats();
+      if (response.success) {
+        setUsageStats(response.data);
+      }
+    } catch (error) {
+      console.error('Erreur chargement stats:', error);
+    }
+  };
+
   // Charger le sessionId depuis localStorage
   const loadSessionIdFromStorage = (): string | null => {
     try {
@@ -88,10 +102,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
       
       setMessages(savedMessages);
       setSessionId(savedSessionId);
+      
+      // Charger les statistiques d'usage
+      loadUsageStats();
     } else {
       // Si pas d'utilisateur connecté, vider la conversation
       setMessages([]);
       setSessionId(null);
+      setUsageStats(null);
     }
   }, [user?.id]); // Déclenché quand l'ID utilisateur change
 
@@ -109,6 +127,12 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
     // Vérifier que l'utilisateur est connecté
     if (!user?.id) {
       toast.error('Vous devez être connecté pour utiliser l\'assistant IA');
+      return;
+    }
+
+    // Vérifier la limite d'usage
+    if (usageStats && usageStats.remaining === 0) {
+      toast.error('Limite quotidienne atteinte. Réessayez demain.');
       return;
     }
 
@@ -143,10 +167,35 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
         const updatedMessages = [...messages, userMessage, assistantMessage];
         setMessages(updatedMessages);
         saveMessagesToStorage(updatedMessages);
+
+        // Mettre à jour les stats d'usage
+        if (response.usageInfo) {
+          setUsageStats((prev: any) => ({
+            ...prev,
+            currentCount: prev.limit - response.usageInfo.remaining,
+            remaining: response.usageInfo.remaining,
+            isNearLimit: response.usageInfo.isNearLimit,
+            percentageUsed: response.usageInfo.percentageUsed
+          }));
+
+          // Avertissement si proche de la limite
+          if (response.usageInfo.isNearLimit && response.usageInfo.remaining > 0) {
+            toast(`Attention: il vous reste ${response.usageInfo.remaining} messages aujourd'hui`, {
+              icon: '⚠️',
+              duration: 4000,
+            });
+          }
+        }
       }
     } catch (error: any) {
       console.error('Error sending message:', error);
-      toast.error(error.response?.data?.message || 'Erreur lors de l\'envoi du message');
+      
+      if (error.response?.status === 429) {
+        toast.error('Limite quotidienne atteinte');
+        setUsageStats((prev: any) => ({ ...prev, remaining: 0 }));
+      } else {
+        toast.error(error.response?.data?.message || 'Erreur lors de l\'envoi du message');
+      }
       
       const errorMessage: ChatMessage = {
         role: 'assistant',
@@ -287,6 +336,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
                 <span>Synchroniser</span>
               </button>
             </div>
+            
+            {/* Indicateur d'usage pour la vue normale */}
+            {usageStats && (
+              <div className="mt-4">
+                <AIUsageIndicator usageStats={usageStats} />
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -308,6 +364,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
                 <p className="text-gray-600 text-sm">
                   Posez-moi une question sur votre budget !
                 </p>
+                
+                {/* Indicateur d'usage dans la vue modale */}
+                {usageStats && (
+                  <div className="mt-4 max-w-sm mx-auto">
+                    <AIUsageIndicator usageStats={usageStats} />
+                  </div>
+                )}
               </div>
             )}
 
@@ -394,13 +457,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isModal = false }) => {
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Posez votre question sur la gestion de budget..."
-                disabled={isLoading}
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                placeholder={usageStats?.remaining === 0 ? "Limite atteinte" : "Posez votre question sur la gestion de budget..."}
+                disabled={isLoading || usageStats?.remaining === 0}
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-100"
               />
               <button
                 onClick={() => handleSendMessage()}
-                disabled={isLoading || !currentMessage.trim()}
+                disabled={isLoading || !currentMessage.trim() || usageStats?.remaining === 0}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-5 h-5" />
